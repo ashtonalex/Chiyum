@@ -1,85 +1,194 @@
+/**
+ * Retro-Kawaii Pastel Pixel Color Palette
+ * Based on THEME_SPEC.md - Muted, "milky" pastels with high-contrast charcoal borders
+ *
+ * Includes backward-compatibility aliases for the original Ignite palette colors
+ * to avoid breaking existing demo screens and components.
+ */
+
 const palette = {
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BASE & BACKGROUNDS (Retro-Kawaii)
+  // ═══════════════════════════════════════════════════════════════════════════
+  /** Primary Background - Off-white Cream */
+  cream: "#FFF9F5",
+  /** Secondary Background - Dusty Rose Blush */
+  dustyRose: "#FFEBEE",
+  /** Card/Container Surface - Pure White */
+  white: "#FFFFFF",
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ACCENTS & UI STATES (Retro-Kawaii)
+  // ═══════════════════════════════════════════════════════════════════════════
+  /** Primary Accent - Minty Teal */
+  mintyTeal: "#B2DFDB",
+  /** Secondary Accent - Muted Lavender */
+  mutedLavender: "#E1BEE7",
+  /** Success/Growth - Sage Green */
+  sageGreen: "#C8E6C9",
+  /** Alert/Warning - Soft Salmon */
+  softSalmon: "#FFCDD2",
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BORDERS & SHADOWS (Pixel Art Style)
+  // ═══════════════════════════════════════════════════════════════════════════
+  /** Main Border/Text - Dark Charcoal (not pure black for softer look) */
+  darkCharcoal: "#3C3C3C",
+  /** Shadow for Rose/Pink elements */
+  pinkShadow: "#E59A9A",
+  /** Shadow for Sage/Green elements */
+  greenShadow: "#81C784",
+  /** Shadow for Teal elements */
+  tealShadow: "#80CBC4",
+  /** Shadow for Lavender elements */
+  lavenderShadow: "#CE93D8",
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // UTILITY
+  // ═══════════════════════════════════════════════════════════════════════════
+  transparent: "rgba(0, 0, 0, 0)",
+  overlay20: "rgba(60, 60, 60, 0.2)",
+  overlay50: "rgba(60, 60, 60, 0.5)",
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BACKWARD COMPATIBILITY - Original Ignite Neutral Palette
+  // These map to the new Retro-Kawaii palette for smooth migration
+  // ═══════════════════════════════════════════════════════════════════════════
   neutral100: "#FFFFFF",
-  neutral200: "#F4F2F1",
-  neutral300: "#D7CEC9",
-  neutral400: "#B6ACA6",
-  neutral500: "#978F8A",
-  neutral600: "#564E4A",
-  neutral700: "#3C3836",
-  neutral800: "#191015",
-  neutral900: "#000000",
+  neutral200: "#FFF9F5", // Maps to cream
+  neutral300: "#FFEBEE", // Maps to dustyRose
+  neutral400: "#E0E0E0",
+  neutral500: "#9E9E9E",
+  neutral600: "#757575",
+  neutral700: "#616161",
+  neutral800: "#3C3C3C", // Maps to darkCharcoal
+  neutral900: "#212121",
 
-  primary100: "#F4E0D9",
-  primary200: "#E8C1B4",
-  primary300: "#DDA28E",
-  primary400: "#D28468",
-  primary500: "#C76542",
-  primary600: "#A54F31",
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BACKWARD COMPATIBILITY - Original Ignite Primary Palette
+  // ═══════════════════════════════════════════════════════════════════════════
+  primary100: "#B2DFDB", // Maps to mintyTeal
+  primary200: "#80CBC4",
+  primary300: "#4DB6AC",
+  primary400: "#26A69A",
+  primary500: "#009688",
+  primary600: "#00897B",
 
-  secondary100: "#DCDDE9",
-  secondary200: "#BCC0D6",
-  secondary300: "#9196B9",
-  secondary400: "#626894",
-  secondary500: "#41476E",
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BACKWARD COMPATIBILITY - Original Ignite Secondary Palette
+  // ═══════════════════════════════════════════════════════════════════════════
+  secondary100: "#E1BEE7", // Maps to mutedLavender
+  secondary200: "#CE93D8",
+  secondary300: "#BA68C8",
+  secondary400: "#AB47BC",
+  secondary500: "#9C27B0",
 
-  accent100: "#FFEED4",
-  accent200: "#FFE1B2",
-  accent300: "#FDD495",
-  accent400: "#FBC878",
-  accent500: "#FFBB50",
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BACKWARD COMPATIBILITY - Original Ignite Accent Palette
+  // ═══════════════════════════════════════════════════════════════════════════
+  accent100: "#C8E6C9", // Maps to sageGreen
+  accent200: "#A5D6A7",
+  accent300: "#81C784",
+  accent400: "#66BB6A",
+  accent500: "#4CAF50",
 
-  angry100: "#F2D6CD",
-  angry500: "#C03403",
-
-  overlay20: "rgba(25, 16, 21, 0.2)",
-  overlay50: "rgba(25, 16, 21, 0.5)",
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BACKWARD COMPATIBILITY - Original Ignite Error Palette
+  // ═══════════════════════════════════════════════════════════════════════════
+  angry100: "#FFCDD2", // Maps to softSalmon
+  angry500: "#D32F2F",
 } as const
 
 export const colors = {
   /**
-   * The palette is available to use, but prefer using the name.
-   * This is only included for rare, one-off cases. Try to use
-   * semantic names as much as possible.
+   * The palette is available to use, but prefer using the semantic names.
+   * This is only included for rare, one-off cases.
    */
   palette,
+
   /**
    * A helper for making something see-thru.
    */
-  transparent: "rgba(0, 0, 0, 0)",
+  transparent: palette.transparent,
+
   /**
-   * The default text color in many components.
+   * The default text color - Dark Charcoal for pixel-perfect readability.
    */
-  text: palette.neutral800,
+  text: palette.darkCharcoal,
+
   /**
-   * Secondary text information.
+   * Secondary/dimmed text information.
    */
-  textDim: palette.neutral600,
+  textDim: "#6B6B6B",
+
   /**
-   * The default color of the screen background.
+   * The default screen background - Cream for warm kawaii feel.
    */
-  background: palette.neutral200,
+  background: palette.cream,
+
   /**
-   * The default border color.
+   * Secondary background for alternating sections.
    */
-  border: palette.neutral400,
+  backgroundSecondary: palette.dustyRose,
+
   /**
-   * The main tinting color.
+   * Card/container surface color.
    */
-  tint: palette.primary500,
+  surface: palette.white,
+
+  /**
+   * The default border color - Always 2px Dark Charcoal per spec.
+   */
+  border: palette.darkCharcoal,
+
+  /**
+   * The main tinting/accent color - Minty Teal.
+   */
+  tint: palette.mintyTeal,
+
+  /**
+   * Secondary accent - Muted Lavender.
+   */
+  tintSecondary: palette.mutedLavender,
+
   /**
    * The inactive tinting color.
    */
-  tintInactive: palette.neutral300,
+  tintInactive: "#D7D7D7",
+
   /**
-   * A subtle color used for lines.
+   * Success states - Sage Green.
    */
-  separator: palette.neutral300,
+  success: palette.sageGreen,
+
   /**
-   * Error messages.
+   * Warning/alert states - Soft Salmon.
+   */
+  warning: palette.softSalmon,
+
+  /**
+   * A subtle color used for separators/lines.
+   */
+  separator: palette.dustyRose,
+
+  /**
+   * Error messages - Slightly muted red for kawaii aesthetic.
    */
   error: palette.angry500,
+
   /**
-   * Error Background.
+   * Error background.
    */
-  errorBackground: palette.angry100,
+  errorBackground: palette.softSalmon,
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SHADOW COLORS (for hard-blocked pixel shadows)
+  // ═══════════════════════════════════════════════════════════════════════════
+  shadow: {
+    default: palette.darkCharcoal,
+    pink: palette.pinkShadow,
+    green: palette.greenShadow,
+    teal: palette.tealShadow,
+    lavender: palette.lavenderShadow,
+  },
 } as const
