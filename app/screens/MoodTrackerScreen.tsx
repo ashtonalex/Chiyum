@@ -2,11 +2,13 @@ import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
 import { View, ViewStyle, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native"
 import { Modal, Portal, Button as PaperButton, TextInput, Text as PaperText } from "react-native-paper"
+import { useRoute } from "@react-navigation/native"
 import * as Haptics from "expo-haptics"
 // import Animated, { useSharedValue, withSequence, withSpring, runOnJS } from "react-native-reanimated"
 
 import { Screen } from "../components/Screen"
 import { Text } from "../components/Text"
+import { BottomNavBar, NavItem } from "../components/BottomNavBar"
 import { PixelCompanion } from "../components/companion/PixelCompanion"
 import { SparkleEffect } from "../components/companion/SparkleEffect"
 import { useStores } from "../models"
@@ -26,10 +28,17 @@ const MOODS = [
 //   { id: "Stressed", emoji: "😫", color: colors.palette.angry500 },
 ]
 
+const NAV_ITEMS: NavItem[] = [
+  { route: "Dashboard", label: "Home", icon: "🏠", color: colors.palette.mintyTeal },
+  { route: "MoodTracker", label: "Mood", icon: "💭", color: colors.palette.mutedLavender },
+  { route: "PhotoAlbum", label: "Photos", icon: "📷", color: colors.palette.sageGreen },
+]
+
 export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function MoodTrackerScreen({
   navigation,
 }) {
   const { companionStore } = useStores()
+  const route = useRoute()
   const [chatMessage, setChatMessage] = useState("")
   const [isMoodModalVisible, setMoodModalVisible] = useState(false)
   
@@ -77,7 +86,8 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
-    marginTop: 180, // Reduced from 100 to give more space for speech bubble
+    marginTop: 240, 
+    paddingBottom: 90, // Space for bottom navigation bar
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
@@ -158,21 +168,56 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                 <TextInput
                     mode="outlined"
                     placeholder="Say something to Chubbs!"
+                    placeholderTextColor={colors.textDim}
                     value={chatMessage}
                     onChangeText={setChatMessage}
-                    style={{ flex: 1, backgroundColor: "white", fontSize: 14 }}
+                    style={{ 
+                      flex: 1, 
+                      backgroundColor: colors.surface,
+                      fontSize: 16,
+                      fontFamily: "pressStart2P",
+                      // Hard pixel shadow
+                      shadowColor: colors.shadow.default,
+                      shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
+                      shadowOpacity: 1,
+                      shadowRadius: 0,
+                      elevation: 0,
+                    }}
+                    outlineStyle={{
+                      borderWidth: pixelSpacing.borderWidth,
+                      borderRadius: 0,
+                    }}
                     outlineColor={colors.border}
-                    activeOutlineColor={colors.palette.primary500}
-                    textColor="black"
-                    dense
+                    activeOutlineColor={colors.palette.mintyTeal}
+                    textColor={colors.text}
                     onSubmitEditing={handleSendMessage}
                 />
                 <PaperButton 
                     mode="contained" 
                     onPress={handleSendMessage}
-                    style={{ marginLeft: spacing.sm, borderRadius: 4 }}
-                    buttonColor={colors.palette.primary500}
-                    compact
+                    style={{ 
+                      marginLeft: spacing.sm, 
+                      borderRadius: 0,
+                      borderWidth: pixelSpacing.borderWidth,
+                      borderColor: colors.border,
+                      // Hard pixel shadow
+                      shadowColor: colors.shadow.teal,
+                      shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
+                      shadowOpacity: 1,
+                      shadowRadius: 0,
+                      elevation: 0,
+                    }}
+                    contentStyle={{ 
+                      paddingVertical: spacing.xs,
+                      paddingHorizontal: spacing.md,
+                    }}
+                    labelStyle={{
+                      fontFamily: "pressStart2P",
+                      fontSize: 12,
+                      letterSpacing: 0,
+                    }}
+                    buttonColor={colors.palette.mintyTeal}
+                    textColor={colors.text}
                     disabled={companionStore.isThinking}
                 >
                     Send
@@ -206,6 +251,9 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
           </PaperButton>
         </Modal>
       </Portal>
+
+      {/* Bottom Navigation */}
+      <BottomNavBar items={NAV_ITEMS} activeRoute={route.name} />
 
     </Screen>
   )
