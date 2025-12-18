@@ -77,7 +77,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
-    marginTop: 100,
+    marginTop: 180, // Reduced from 100 to give more space for speech bubble
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
@@ -87,6 +87,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     justifyContent: "center",
     marginVertical: spacing.xl,
     zIndex: 10,
+    overflow: "visible", // Allow speech bubble to overflow this container
   }
 
   const INPUT_CONTAINER: ViewStyle = {
@@ -185,12 +186,18 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
       {/* Mood Selector Modal */}
       <Portal>
         <Modal visible={isMoodModalVisible} onDismiss={() => setMoodModalVisible(false)} contentContainerStyle={MODAL_CONTENT}>
-          <Text preset="subheading" text="How are you feeling?" style={{ marginBottom: spacing.md }} />
+          <Text preset="subheading" text="How are you feeling?" style={{ marginBottom: spacing.md, color: colors.text }} />
           <ScrollView style={{ width: "100%", maxHeight: 300 }}>
              {MOODS.map(mood => (
                  <TouchableOpacity key={mood.id} onPress={() => handleMoodSelect(mood.id)} style={MOOD_ITEM}>
                      <Text text={mood.emoji} size="xl" style={{ marginRight: spacing.md }} />
-                     <Text text={mood.id} preset="bold" />
+                     <Text 
+                       text={mood.id} 
+                       preset="bold" 
+                       style={{
+                         color: companionStore.moodState === mood.sprite ? mood.color : colors.text
+                       }}
+                     />
                  </TouchableOpacity>
              ))}
           </ScrollView>

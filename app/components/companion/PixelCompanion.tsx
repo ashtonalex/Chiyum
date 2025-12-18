@@ -122,8 +122,10 @@ const $container: ViewStyle = {
 
 const $bubbleContainer: ViewStyle = {
   position: "absolute",
-  bottom: 80,
+  bottom: 80, // Reduced to account for 2.5x parent scale - prevents overflow above screen
   zIndex: 10,
+  maxHeight: 150, // Match MAX_BUBBLE_HEIGHT from SpeechBubble
+  overflow: "visible", // Prevent any overflow
 }
 
 const $spriteContainer: ViewStyle = {

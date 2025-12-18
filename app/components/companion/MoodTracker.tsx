@@ -45,7 +45,14 @@ export const MoodTracker = observer(function MoodTracker() {
             onPress={() => handleMoodSelect(mood.level)}
           >
             <Text text={mood.emoji} style={$emoji} />
-            <Text text={mood.label} size="xs" style={themed($label)} />
+            <Text 
+              text={mood.label} 
+              size="xs" 
+              style={[
+                themed($label),
+                moodStore.lastEntry?.level === mood.level && { color: "#FF6B6B" }
+              ]} 
+            />
           </Pressable>
         ))}
       </ScrollView>

@@ -75,6 +75,7 @@ const $bubble: ViewStyle = {
   minWidth: MIN_BUBBLE_WIDTH,
   maxWidth: MAX_BUBBLE_WIDTH,
   minHeight: MIN_BUBBLE_HEIGHT,
+  maxHeight: MAX_BUBBLE_HEIGHT,
   // We remove explicit alignItems/justifyContent center here because ScrollView needs to take space
   // But we can put them back on the container or handle individually
   alignItems: "center",
@@ -94,10 +95,10 @@ const $textContainer: ViewStyle = {
 }
 
 const $text: TextStyle = {
-  fontSize: 10,
+  fontSize: 6, // Using fontSizes.pixel.xs from theme - optimized for PressStart2P
   color: "#333",
   textAlign: "center",
-  lineHeight: 14,
+  lineHeight: 10,
 }
 
 const $tailContainer: ViewStyle = {
