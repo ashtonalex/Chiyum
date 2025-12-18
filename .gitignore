@@ -72,9 +72,10 @@ bin/Exponent.app
 /android
 /ios
 expo-env.d.ts
-/docs
+
 
 ## Secrets
+.env
 npm-debug.*
 *.jks
 *.p8

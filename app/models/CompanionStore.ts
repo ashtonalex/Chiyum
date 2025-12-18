@@ -3,7 +3,8 @@
  * Based on FEATURE_MOOD_COMPANION.md - AI pixel-art companion state
  */
 
-import { types, Instance } from "mobx-state-tree"
+import { types, Instance, flow } from "mobx-state-tree"
+import { getCompanionResponse } from "../services/openrouter/companion-api"
 
 /**
  * Companion mood states that affect sprite animation.
@@ -162,6 +163,42 @@ export const CompanionStoreModel = types
         greetings[Math.floor(Math.random() * greetings.length)]
       self.setMessage(randomGreeting)
     },
+
+    /**
+     * Fetch AI response based on mood.
+     */
+    fetchAIResponse: flow(function* fetchAIResponse(mood: string) {
+      self.isThinking = true
+      self.moodState = "thinking"
+      
+      try {
+        const result = yield getCompanionResponse(mood, self.companionName)
+        
+        if (result.kind === "ok") {
+          self.setMessage(result.message)
+        } else {
+            console.tron?.error?.("AI Error: " + result.message, [])
+            self.setMessage("I'm here for you! ❤️") // Fallback
+        }
+      } catch (error) {
+        console.error("Failed to fetch AI response", error)
+        self.setMessage("Sending love! 💕") // Fallback
+      } finally {
+        self.isThinking = false
+        // Restore mood state from input if needed, or let it stay "thinking" until user interaction?
+        // Better to set it back to the mood context
+        const moodMapping: Record<string, typeof CompanionMoodState.Type> = {
+            Happy: "happy",
+            Excited: "excited",
+            Sad: "sad",
+            Tired: "sad",
+            Anxious: "anxious",
+            Stressed: "anxious",
+            Neutral: "idle",
+        }
+        self.moodState = moodMapping[mood] || "idle"
+      }
+    }),
   }))
 
 export interface CompanionStoreType
