@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
-import { View, ViewStyle, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native"
+import { View, ViewStyle, ScrollView, Image, ImageBackground, TouchableOpacity, Dimensions } from "react-native"
 import { Modal, Portal, Button as PaperButton, TextInput, Text as PaperText } from "react-native-paper"
 import { useRoute } from "@react-navigation/native"
 import * as Haptics from "expo-haptics"
@@ -132,10 +132,15 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
 
   return (
     <Screen preset="fixed" safeAreaEdges={["top", "bottom"]} style={{ backgroundColor: colors.background }}>
+      <ImageBackground 
+        source={require("@assets/images/backgrounds/retro_kawaii_bg.png")}
+        style={{ flex: 1 }}
+        resizeMode="repeat"
+      >
       
       {/* Header */}
       <View style={HEADER_CONTAINER}>
-        <Text preset="heading" text="Chubb's Corner" style={{ color: colors.palette.primary500 }} />
+        <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: "pressStart2P", fontSize: 24, color: colors.text }} />
       </View>
 
       <View style={CONTENT_CONTAINER}>
@@ -284,6 +289,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
       {/* Bottom Navigation */}
       <BottomNavBar items={NAV_ITEMS} activeRoute={route.name} />
 
+      </ImageBackground>
     </Screen>
   )
 })
