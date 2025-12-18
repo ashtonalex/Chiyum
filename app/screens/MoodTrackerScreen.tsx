@@ -92,7 +92,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
-    marginTop: 240, 
+    marginTop: 220, 
     paddingBottom: 90, // Space for bottom navigation bar
   }
 
@@ -162,13 +162,32 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
             
             {/* Mood Button */}
             <PaperButton 
-                mode="elevated" 
+                mode="contained" 
                 onPress={() => setMoodModalVisible(true)}
-                style={{ marginBottom: spacing.lg, borderColor: colors.border }}
-                contentStyle={{ paddingVertical: spacing.xs }}
+                style={{ 
+                  marginBottom: spacing.lg, 
+                  borderRadius: 0,
+                  borderWidth: pixelSpacing.borderWidth,
+                  borderColor: colors.border,
+                  // Hard pixel shadow
+                  shadowColor: colors.shadow.lavender,
+                  shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
+                  shadowOpacity: 1,
+                  shadowRadius: 0,
+                  elevation: 0,
+                }}
+                contentStyle={{ 
+                  paddingVertical: spacing.md,
+                  paddingHorizontal: spacing.lg,
+                }}
+                labelStyle={{
+                  fontFamily: "pressStart2P",
+                  fontSize: 12,
+                  letterSpacing: 0,
+                }}
                 icon="emoticon-outline"
-                textColor={colors.palette.primary500}
-                buttonColor={colors.palette.neutral100}
+                textColor={colors.text}
+                buttonColor={colors.palette.mutedLavender}
             >
                 How do you feel?
             </PaperButton>
