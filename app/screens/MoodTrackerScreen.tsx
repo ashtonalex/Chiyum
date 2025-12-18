@@ -41,6 +41,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   const route = useRoute()
   const [chatMessage, setChatMessage] = useState("")
   const [isMoodModalVisible, setMoodModalVisible] = useState(false)
+  const [sparkleTrigger, setSparkleTrigger] = useState(0)
   
   // Dimensions for responsive sprite sizing
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window")
@@ -62,6 +63,11 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     // The store reactToMood sets the sprite. 
     // Maybe trigger an AI response "Oh you're happy!"?
     companionStore.fetchAIResponse(moodId)
+  }
+
+  const handleCompanionPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    setSparkleTrigger(prev => prev + 1) // Increment to trigger sparkle animation
   }
 
   const handleSendMessage = () => {
@@ -142,9 +148,13 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                  Let's check PixelCompanion again. It uses fixed sizes. 
                  Since we can't easily pass props without editing it, let's scale the view.
              */}
-             <View style={{ transform: [{ scale: 2.5 }] }}> 
-                <PixelCompanion />
-             </View>
+             <TouchableOpacity onPress={handleCompanionPress} activeOpacity={0.8}>
+               <View style={{ transform: [{ scale: 2.5 }] }}> 
+                  <PixelCompanion />
+               </View>
+             </TouchableOpacity>
+             {/* Sparkle Effect Overlay - triggers on companion click */}
+             <SparkleEffect trigger={sparkleTrigger} />
           </View>
 
           {/* Controls */}
