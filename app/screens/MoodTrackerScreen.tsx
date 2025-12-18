@@ -43,11 +43,17 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   const [isMoodModalVisible, setMoodModalVisible] = useState(false)
   const [sparkleTrigger, setSparkleTrigger] = useState(0)
   
-  // Dimensions for responsive sprite sizing
+  // Dimensions for responsive layout
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window")
-  // 30% of screen height/width roughly, keeping aspect ratio? 
-  // Let's target 30% of screen height for the companion area
-  const spriteSize = screenHeight * 0.3
+  
+  // Responsive scale for companion - larger on bigger screens, clamped to reasonable range
+  const companionScale = Math.max(1.5, Math.min(3, Math.min(screenWidth, screenHeight) / 300))
+  
+  // Responsive spacing calculations
+  const navBarHeight = screenHeight * 0.1 // Approximate nav bar height (~10%)
+  const modalMaxHeight = screenHeight * 0.4 // 40% of screen for modal content
+  const modalPadding = Math.max(16, screenWidth * 0.05) // 5% of screen width, min 16
+  const modalMargin = Math.max(16, screenWidth * 0.05) // 5% of screen width, min 16
 
   useEffect(() => {
     companionStore.hideBubble()
@@ -90,18 +96,16 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   const CONTENT_CONTAINER: ViewStyle = {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: spacing.lg,
-    marginTop: 220, 
-    paddingBottom: 90, // Space for bottom navigation bar
+    justifyContent: "flex-end", // Align all content to the bottom
+    paddingHorizontal: screenWidth * 0.05, // 5% horizontal padding
+    paddingBottom: navBarHeight + spacing.md, // Space for absolutely positioned nav bar
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
-    height: spriteSize,
-    width: "100%", // Take full width to center allow helper views
+    width: "100%", // Take full width to center content
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: spacing.xl,
+    marginBottom: spacing.lg, // Space between companion and controls
     zIndex: 10,
     overflow: "visible", // Allow speech bubble to overflow this container
   }
@@ -115,8 +119,8 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
 
   const MODAL_CONTENT: ViewStyle = {
     backgroundColor: "white",
-    padding: 20,
-    margin: 20,
+    padding: modalPadding,
+    margin: modalMargin,
     borderRadius: 8,
     alignItems: "center",
   }
@@ -131,18 +135,24 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   }
 
   return (
-    <Screen preset="fixed" safeAreaEdges={["top", "bottom"]} style={{ backgroundColor: colors.background }}>
+    <Screen 
+      preset="fixed" 
+      safeAreaEdges={["top", "bottom"]} 
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{ flex: 1 }}
+    >
       <ImageBackground 
         source={require("@assets/images/backgrounds/retro_kawaii_bg.png")}
-        style={{ flex: 1 }}
+        style={{ flex: 1, flexDirection: "column" }}
         resizeMode="repeat"
       >
       
-      {/* Header */}
+      {/* Header - fixed at top */}
       <View style={HEADER_CONTAINER}>
         <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: "pressStart2P", fontSize: 24, color: colors.text }} />
       </View>
 
+      {/* Main content area - fills remaining space */}
       <View style={CONTENT_CONTAINER}>
           
           {/* Companion Area */}
@@ -154,7 +164,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                  Since we can't easily pass props without editing it, let's scale the view.
              */}
              <TouchableOpacity onPress={handleCompanionPress} activeOpacity={0.8}>
-               <View style={{ transform: [{ scale: 2.5 }] }}> 
+               <View style={{ transform: [{ scale: companionScale }] }}>
                   <PixelCompanion />
                </View>
              </TouchableOpacity>
@@ -162,8 +172,8 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
              <SparkleEffect trigger={sparkleTrigger} />
           </View>
 
-          {/* Controls */}
-          <View style={{ width: "100%", paddingBottom: spacing.xxl }}>
+          {/* Controls - pinned to bottom of content area */}
+          <View style={{ width: "100%", flexShrink: 0 }}>
             
             {/* Mood Button */}
             <PaperButton 
@@ -266,7 +276,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
       <Portal>
         <Modal visible={isMoodModalVisible} onDismiss={() => setMoodModalVisible(false)} contentContainerStyle={MODAL_CONTENT}>
           <Text preset="subheading" text="How are you feeling?" style={{ marginBottom: spacing.md, color: colors.text }} />
-          <ScrollView style={{ width: "100%", maxHeight: 300 }}>
+          <ScrollView style={{ width: "100%", maxHeight: modalMaxHeight }}>
              {MOODS.map(mood => (
                  <TouchableOpacity key={mood.id} onPress={() => handleMoodSelect(mood.id)} style={MOOD_ITEM}>
                      <Text text={mood.emoji} size="xl" style={{ marginRight: spacing.md }} />
