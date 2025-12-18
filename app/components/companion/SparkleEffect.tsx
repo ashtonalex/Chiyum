@@ -53,7 +53,7 @@ export const SparkleEffect = () => {
     }))
 
     return (
-        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+        <View style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]}>
             {sparkles.map(s => (
                 <Sparkle key={s.id} {...s} />
             ))}

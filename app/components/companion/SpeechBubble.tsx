@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { View, ViewStyle, Text as RNText, TextStyle } from "react-native"
+import { View, ViewStyle, Text as RNText, TextStyle, Dimensions, ScrollView } from "react-native"
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from "react-native-reanimated"
 import { useAppTheme } from "@/theme/context"
 import { colors } from "@/theme/colors"
@@ -8,8 +8,11 @@ interface SpeechBubbleProps {
   text: string
 }
 
-const BUBBLE_WIDTH = 180
-const BUBBLE_HEIGHT = 80
+const { width: SCREEN_WIDTH } = Dimensions.get("window")
+const MAX_BUBBLE_WIDTH = SCREEN_WIDTH - 30 // 30px padding on each side
+const MAX_BUBBLE_HEIGHT = 200
+const MIN_BUBBLE_WIDTH = 120
+const MIN_BUBBLE_HEIGHT = 60
 const TAIL_SIZE = 12
 
 export const SpeechBubble = ({ text }: SpeechBubbleProps) => {
@@ -32,9 +35,15 @@ export const SpeechBubble = ({ text }: SpeechBubbleProps) => {
       {/* Main Bubble */}
       <View style={$bubble}>
         <View style={$textContainer}>
-            <RNText style={[$text, { fontFamily: theme.typography.pixel.normal }]}>
-            {text}
-            </RNText>
+            <ScrollView 
+              style={{ maxHeight: MAX_BUBBLE_HEIGHT - 20 }} // Subtract padding
+              showsVerticalScrollIndicator={true}
+              bounces={false}
+            >
+                <RNText style={[$text, { fontFamily: theme.typography.pixel.normal }]}>
+                {text}
+                </RNText>
+            </ScrollView>
         </View>
       </View>
 
@@ -49,8 +58,9 @@ export const SpeechBubble = ({ text }: SpeechBubbleProps) => {
 }
 
 const $container: ViewStyle = {
-  width: BUBBLE_WIDTH,
-  minHeight: BUBBLE_HEIGHT, 
+  minWidth: MIN_BUBBLE_WIDTH,
+  maxWidth: MAX_BUBBLE_WIDTH,
+  minHeight: MIN_BUBBLE_HEIGHT, 
   alignItems: "center",
   justifyContent: "center",
   marginBottom: TAIL_SIZE, // Make room for tail
@@ -62,8 +72,11 @@ const $bubble: ViewStyle = {
   borderWidth: 2,
   borderRadius: 16,
   padding: 10,
-  minWidth: BUBBLE_WIDTH,
-  minHeight: BUBBLE_HEIGHT,
+  minWidth: MIN_BUBBLE_WIDTH,
+  maxWidth: MAX_BUBBLE_WIDTH,
+  minHeight: MIN_BUBBLE_HEIGHT,
+  // We remove explicit alignItems/justifyContent center here because ScrollView needs to take space
+  // But we can put them back on the container or handle individually
   alignItems: "center",
   justifyContent: "center",
   zIndex: 2,
@@ -77,6 +90,7 @@ const $bubble: ViewStyle = {
 const $textContainer: ViewStyle = {
   alignItems: "center",
   justifyContent: "center",
+  width: "100%",
 }
 
 const $text: TextStyle = {

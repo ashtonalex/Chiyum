@@ -276,7 +276,7 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<"DemoShowroom">> =
               )
             }}
           />
-          <View style={themed($companionContainer)} pointerEvents="box-none">
+          <View style={[themed($companionContainer), { pointerEvents: "box-none" }]}>
              <PixelCompanion />
           </View>
         </Screen>

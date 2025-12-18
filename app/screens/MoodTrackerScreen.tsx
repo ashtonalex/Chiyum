@@ -77,6 +77,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: spacing.lg,
+    marginTop: 100,
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
@@ -117,7 +118,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
       
       {/* Header */}
       <View style={HEADER_CONTAINER}>
-        <Text preset="heading" text="Chubb's Corner" />
+        <Text preset="heading" text="Chubb's Corner" style={{ color: colors.palette.primary500 }} />
       </View>
 
       <View style={CONTENT_CONTAINER}>
