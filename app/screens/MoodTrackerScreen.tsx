@@ -1,14 +1,12 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
-import { View, ViewStyle, ScrollView, Alert } from "react-native"
+import { View, ViewStyle, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native"
+import { Modal, Portal, Button as PaperButton, TextInput, Text as PaperText } from "react-native-paper"
 import * as Haptics from "expo-haptics"
 // import Animated, { useSharedValue, withSequence, withSpring, runOnJS } from "react-native-reanimated"
 
-import { Button } from "../components/Button"
 import { Screen } from "../components/Screen"
 import { Text } from "../components/Text"
-import { MoodCard } from "../components/MoodCard"
-import { SteppedSlider } from "../components/SteppedSlider"
 import { PixelCompanion } from "../components/companion/PixelCompanion"
 import { SparkleEffect } from "../components/companion/SparkleEffect"
 import { useStores } from "../models"
@@ -19,52 +17,50 @@ import { spacing, pixelSpacing } from "../theme/spacing"
 interface MoodTrackerScreenProps extends AppStackScreenProps<"MoodTracker"> {}
 
 const MOODS = [
-  { id: "Happy", emoji: "😊", color: colors.palette.sageGreen },
-  { id: "Excited", emoji: "🤩", color: colors.palette.mintyTeal },
-  { id: "Neutral", emoji: "😐", color: colors.palette.neutral400 },
-  { id: "Sad", emoji: "😢", color: colors.palette.softSalmon },
-  { id: "Tired", emoji: "😴", color: colors.palette.mutedLavender },
-  { id: "Anxious", emoji: "😰", color: colors.palette.softSalmon },
-  { id: "Stressed", emoji: "😫", color: colors.palette.angry500 },
+  { id: "Happy", emoji: "😊", color: colors.palette.sageGreen, sprite: "happy" },
+  { id: "Excited", emoji: "🤩", color: colors.palette.mintyTeal, sprite: "excited" },
+  { id: "Neutral", emoji: "😐", color: colors.palette.neutral400, sprite: "idle" },
+  { id: "Sad", emoji: "😢", color: colors.palette.softSalmon, sprite: "sad" },
+  { id: "Anxious", emoji: "😰", color: colors.palette.softSalmon, sprite: "anxious" },
+//   { id: "Tired", emoji: "😴", color: colors.palette.mutedLavender },
+//   { id: "Stressed", emoji: "😫", color: colors.palette.angry500 },
 ]
 
 export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function MoodTrackerScreen({
   navigation,
 }) {
   const { companionStore } = useStores()
-  const [selectedMood, setSelectedMood] = useState<string | null>(null)
-  const [intensity, setIntensity] = useState(3)
-  const [showSparkles, setShowSparkles] = useState(false)
+  const [chatMessage, setChatMessage] = useState("")
+  const [isMoodModalVisible, setMoodModalVisible] = useState(false)
+  
+  // Dimensions for responsive sprite sizing
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window")
+  // 30% of screen height/width roughly, keeping aspect ratio? 
+  // Let's target 30% of screen height for the companion area
+  const spriteSize = screenHeight * 0.3
 
-  // Reset companion bubble on mount
   useEffect(() => {
     companionStore.hideBubble()
+    // Reset to idle or keep current? Let's keep current state
   }, [])
 
   const handleMoodSelect = (moodId: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-    setSelectedMood(moodId)
-    // Update companion mood instantly for visual feedback
     companionStore.reactToMood(moodId)
+    setMoodModalVisible(false)
+
+    // Optional: Trigger specific response for mood? 
+    // The store reactToMood sets the sprite. 
+    // Maybe trigger an AI response "Oh you're happy!"?
+    companionStore.fetchAIResponse(moodId)
   }
 
-  const handleSave = async () => {
-    if (!selectedMood) {
-      Alert.alert("Wait!", "Please select a mood first.")
-      return
-    }
+  const handleSendMessage = () => {
+    if (!chatMessage.trim()) return
 
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-    setShowSparkles(true)
-    
-    // Trigger AI response
-    await companionStore.fetchAIResponse(selectedMood)
-
-    setTimeout(() => {
-        Alert.alert("Mood Saved", "Your partner will see how you feel!", [
-            { text: "OK", onPress: () => navigation.goBack() }
-        ])
-    }, 1000) // Delay alert to let sparkles show
+    Haptics.selectionAsync()
+    companionStore.chatWithCompanion(chatMessage)
+    setChatMessage("")
   }
 
   const HEADER_CONTAINER: ViewStyle = {
@@ -73,91 +69,136 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     backgroundColor: colors.surface,
     borderBottomWidth: pixelSpacing.borderWidth,
     borderBottomColor: colors.border,
-    flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
   }
 
-  const SECTION_TITLE: ViewStyle = {
-    marginTop: spacing.xl,
-    marginBottom: spacing.md,
+  const CONTENT_CONTAINER: ViewStyle = {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: spacing.lg,
   }
 
-  const SCROLL_CONTAINER: ViewStyle = {
-    paddingHorizontal: spacing.md, 
-    paddingBottom: spacing.sm,
+  const COMPANION_CONTAINER: ViewStyle = {
+    height: spriteSize,
+    width: "100%", // Take full width to center allow helper views
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: spacing.xl,
+    zIndex: 10,
   }
 
-  const COMPANION_CONTAINER: ViewStyle = {
-    position: "absolute",
-    top: spacing.md,
-    right: spacing.lg,
-    zIndex: 10,
-    alignItems: "flex-end", // Align bubble to right
+  const INPUT_CONTAINER: ViewStyle = {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginTop: spacing.sm,
+  }
+
+  const MODAL_CONTENT: ViewStyle = {
+    backgroundColor: "white",
+    padding: 20,
+    margin: 20,
+    borderRadius: 8,
+    alignItems: "center",
+  }
+
+  const MOOD_ITEM: ViewStyle = {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: spacing.md,
+    width: "100%",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.palette.neutral200,
   }
 
   return (
-    <Screen preset="scroll" safeAreaEdges={["top", "bottom"]} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+    <Screen preset="fixed" safeAreaEdges={["top", "bottom"]} style={{ backgroundColor: colors.background }}>
       
-      {/* Header with Washi Tape Look */}
+      {/* Header */}
       <View style={HEADER_CONTAINER}>
-        <View>
-            <Text preset="heading" text="Mood Tracker" />
-            <Text text="How are you feeling?" size="xs" style={{ fontFamily: "PressStart2P-Regular", marginTop: spacing.xs }} />
-        </View>
-        {/* Companion Placeholder Area (Visual Logic handled by Absolute View below) */}
-        <View style={{ width: 64, height: 64 }} /> 
+        <Text preset="heading" text="Chubb's Corner" />
       </View>
 
-      {/* Floating Companion */}
-      <View style={COMPANION_CONTAINER}>
-          <PixelCompanion />
+      <View style={CONTENT_CONTAINER}>
+          
+          {/* Companion Area */}
+          <View style={COMPANION_CONTAINER}>
+             {/* We rely on PixelCompanion to render the sprite. 
+                 It has internal Fixed sizing styles usually, we might need to override them 
+                 or wrap it in a transform for scaling if it doesn't support props. 
+                 Let's check PixelCompanion again. It uses fixed sizes. 
+                 Since we can't easily pass props without editing it, let's scale the view.
+             */}
+             <View style={{ transform: [{ scale: 2.5 }] }}> 
+                <PixelCompanion />
+             </View>
+          </View>
+
+          {/* Controls */}
+          <View style={{ width: "100%", paddingBottom: spacing.xxl }}>
+            
+            {/* Mood Button */}
+            <PaperButton 
+                mode="elevated" 
+                onPress={() => setMoodModalVisible(true)}
+                style={{ marginBottom: spacing.lg, borderColor: colors.border }}
+                contentStyle={{ paddingVertical: spacing.xs }}
+                icon="emoticon-outline"
+                textColor={colors.palette.primary500}
+                buttonColor={colors.palette.neutral100}
+            >
+                How do you feel?
+            </PaperButton>
+
+            {/* Chat Input */}
+            <View style={INPUT_CONTAINER}>
+                <TextInput
+                    mode="outlined"
+                    placeholder="Say something to Chubbs!"
+                    value={chatMessage}
+                    onChangeText={setChatMessage}
+                    style={{ flex: 1, backgroundColor: "white", fontSize: 14 }}
+                    outlineColor={colors.border}
+                    activeOutlineColor={colors.palette.primary500}
+                    textColor="black"
+                    dense
+                    onSubmitEditing={handleSendMessage}
+                />
+                <PaperButton 
+                    mode="contained" 
+                    onPress={handleSendMessage}
+                    style={{ marginLeft: spacing.sm, borderRadius: 4 }}
+                    buttonColor={colors.palette.primary500}
+                    compact
+                    disabled={companionStore.isThinking}
+                >
+                    Send
+                </PaperButton>
+            </View>
+
+          </View>
+
       </View>
 
-      <Text text="Select Mood" preset="bold" style={SECTION_TITLE} />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={SCROLL_CONTAINER}>
-        {MOODS.map((m) => (
-          <MoodCard
-            key={m.id}
-            mood={m.id}
-            emoji={m.emoji}
-            color={m.color}
-            selected={selectedMood === m.id}
-            onPress={() => handleMoodSelect(m.id)}
-          />
-        ))}
-      </ScrollView>
+      {/* Mood Selector Modal */}
+      <Portal>
+        <Modal visible={isMoodModalVisible} onDismiss={() => setMoodModalVisible(false)} contentContainerStyle={MODAL_CONTENT}>
+          <Text preset="subheading" text="How are you feeling?" style={{ marginBottom: spacing.md }} />
+          <ScrollView style={{ width: "100%", maxHeight: 300 }}>
+             {MOODS.map(mood => (
+                 <TouchableOpacity key={mood.id} onPress={() => handleMoodSelect(mood.id)} style={MOOD_ITEM}>
+                     <Text text={mood.emoji} size="xl" style={{ marginRight: spacing.md }} />
+                     <Text text={mood.id} preset="bold" />
+                 </TouchableOpacity>
+             ))}
+          </ScrollView>
+          <PaperButton onPress={() => setMoodModalVisible(false)} style={{ marginTop: spacing.md }}>
+              Cancel
+          </PaperButton>
+        </Modal>
+      </Portal>
 
-      <Text text="Intensity" preset="bold" style={SECTION_TITLE} />
-      <View style={{ paddingHorizontal: spacing.lg }}>
-        <SteppedSlider value={intensity} onValueChange={setIntensity} />
-        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: spacing.xs }}>
-             <Text text="Low" size="xxs" style={{ fontFamily: "PressStart2P-Regular" }} />
-             <Text text="High" size="xxs" style={{ fontFamily: "PressStart2P-Regular" }} />
-        </View>
-      </View>
-
-      <View style={{ paddingHorizontal: spacing.lg, marginTop: spacing.xxl }}>
-        <Button
-            text="Save Mood"
-            preset="reversed"
-            onPress={handleSave}
-            style={{ 
-                borderWidth: pixelSpacing.borderWidth, 
-                borderColor: colors.border,
-                borderRadius: 0,
-                shadowColor: colors.shadow.default,
-                shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
-                shadowOpacity: 1,
-                shadowRadius: 0,
-                elevation: 0,
-            }}
-            textStyle={{ fontFamily: "PressStart2P-Regular", fontSize: 12 }}
-        />
-      </View>
-
-      {showSparkles && <SparkleEffect />}
     </Screen>
   )
 })

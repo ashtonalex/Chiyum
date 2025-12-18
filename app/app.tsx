@@ -24,6 +24,7 @@ import * as Linking from "expo-linking"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
 import { StatusBar } from "react-native"
+import { PaperProvider } from "react-native-paper"
 
 import { AuthProvider } from "./context/AuthContext"
 import { initI18n } from "./i18n"
@@ -106,11 +107,13 @@ export function App() {
         <KeyboardProvider>
           <AuthProvider>
             <ThemeProvider>
-              <AppNavigator
-                linking={linking}
-                initialState={initialNavigationState}
-                onStateChange={onNavigationStateChange}
-              />
+              <PaperProvider>
+                <AppNavigator
+                  linking={linking}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              </PaperProvider>
             </ThemeProvider>
           </AuthProvider>
         </KeyboardProvider>

@@ -40,6 +40,9 @@ export const CompanionStoreModel = types
     /** Last interaction timestamp */
     lastInteractionAt: types.maybe(types.Date),
   })
+  .volatile((self) => ({
+    bubbleTimeout: null as any,
+  }))
   .views((self) => ({
     /**
      * Returns true if companion hasn't been interacted with recently.
@@ -69,18 +72,32 @@ export const CompanionStoreModel = types
   // First actions block - base actions
   .actions((self) => ({
     /**
+     * Hide the speech bubble.
+     */
+    hideBubble() {
+      self.isBubbleVisible = false
+    },
+  }))
+  .actions((self) => ({
+    /**
      * Set the companion's message and show bubble.
      */
     setMessage(message: string) {
       self.currentMessage = message
       self.isBubbleVisible = true
-    },
+      
+      // Clear existing timeout
+      if (self.bubbleTimeout) {
+        clearTimeout(self.bubbleTimeout)
+        self.bubbleTimeout = null
+      }
 
-    /**
-     * Hide the speech bubble.
-     */
-    hideBubble() {
-      self.isBubbleVisible = false
+      // Auto-hide after 3 seconds if not thinking
+      self.bubbleTimeout = setTimeout(() => {
+        if (!self.isThinking) {
+            self.hideBubble()
+        }
+      }, 3000)
     },
 
     /**
@@ -198,6 +215,47 @@ export const CompanionStoreModel = types
         }
         self.moodState = moodMapping[mood] || "idle"
       }
+    }),
+
+    /**
+     * Chat with the companion.
+     */
+    chatWithCompanion: flow(function* chatWithCompanion(message: string) {
+        self.isThinking = true
+        self.moodState = "thinking"
+        
+        // Hide previous bubble while thinking? Or keep it? 
+        // Let's keep it visible if it exists, or maybe show "..."?
+        self.setMessage("...") // Show typing indicator
+
+        try {
+            // Needed import
+            const { getCompanionChatResponse } = require("../services/openrouter/companion-api")
+            const result = yield getCompanionChatResponse(message, self.companionName)
+
+            if (result.kind === "ok") {
+                self.setMessage(result.message)
+                // Simple sentiment analysis based on keywords to change sprite?
+                // For now, let's default to happy/idle unless we detect sad words.
+                if (result.message.match(/sorry|sad|hug/i)) {
+                    self.moodState = "sad" // Sympathy face
+                } else if (result.message.match(/yay|awesome|great/i)) {
+                    self.moodState = "excited"
+                } else {
+                    self.moodState = "happy"
+                }
+
+            } else {
+                self.setMessage("I didn't quite catch that...")
+                self.moodState = "anxious"
+            }
+        } catch (error) {
+            console.error("Chat error", error)
+            self.setMessage("My brain fuzzy...")
+            self.moodState = "anxious"
+        } finally {
+            self.isThinking = false
+        }
     }),
   }))
 

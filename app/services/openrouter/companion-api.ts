@@ -21,6 +21,11 @@ const DEFAULT_MODEL = "openai/gpt-3.5-turbo"
  */
 const COMPANION_SYSTEM_PROMPT = `You are {{companionName}}, a tiny, pixel-art companion for a couple's app. You are warm, encouraging, and use short sentences. Address the user's mood: {{mood}}. Use 1-2 cute emojis. Max 20 words.`
 
+/**
+ * System prompt for general chat.
+ */
+const CHAT_SYSTEM_PROMPT = `You are {{companionName}}, a tiny, pixel-art companion. You are friendly, cute, and supportive. Use short sentences (max 20 words) and cute emojis. If the user is sad/anxious, be comforting. If happy, be excited.`
+
 // ═══════════════════════════════════════════════════════════════════════════
 // API FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -51,6 +56,37 @@ export async function getCompanionResponse(
     { role: "system", content: systemPrompt },
     { role: "user", content: `Partner mood: ${mood}. Give a short, cute response.` },
   ]
+
+  const result = await openRouterApi.chat(messages, DEFAULT_MODEL)
+
+  if (result.kind === "ok") {
+    return { kind: "ok", message: result.response }
+  }
+
+  return { kind: "error", message: result.message }
+}
+
+/**
+ * Get a companion response for general chat.
+ *
+ * @param message - The user's message
+ * @param companionName - The companion's name
+ */
+export async function getCompanionChatResponse(
+  message: string,
+  companionName: string = "Piku",
+): Promise<{ kind: "ok"; message: string; mood?: string } | { kind: "error"; message: string }> {
+  const systemPrompt = CHAT_SYSTEM_PROMPT.replace("{{companionName}}", companionName)
+
+  const messages: ChatMessage[] = [
+    { role: "system", content: systemPrompt },
+    { role: "user", content: message },
+  ]
+
+  // We could potentially ask for a JSON response to include the mood, but for now we'll imply it or leave it.
+  // Ideally, the sprite should change based on the sentiment of the reply.
+  // For simplicity given the scope, we'll keep it text-only for now, but maybe infer mood later?
+  // Let's just return text for now.
 
   const result = await openRouterApi.chat(messages, DEFAULT_MODEL)
 
@@ -93,21 +129,21 @@ export async function getPokeResponse(
  * @param timeOfDay - "morning", "afternoon", or "evening"
  */
 export async function getTimeBasedGreeting(
-  companionName: string = "Piku",
-  timeOfDay: "morning" | "afternoon" | "evening" = "morning",
-): Promise<{ kind: "ok"; message: string } | { kind: "error"; message: string }> {
-  const systemPrompt = `You are ${companionName}, a tiny, pixel-art companion. It's ${timeOfDay}. Give a sweet, short greeting (max 15 words). Use 1-2 emojis.`
-
-  const messages: ChatMessage[] = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: `Good ${timeOfDay}!` },
-  ]
-
-  const result = await openRouterApi.chat(messages, DEFAULT_MODEL)
-
-  if (result.kind === "ok") {
-    return { kind: "ok", message: result.response }
+    companionName: string = "Piku",
+    timeOfDay: "morning" | "afternoon" | "evening" = "morning",
+  ): Promise<{ kind: "ok"; message: string } | { kind: "error"; message: string }> {
+    const systemPrompt = `You are ${companionName}, a tiny, pixel-art companion. It's ${timeOfDay}. Give a sweet, short greeting (max 15 words). Use 1-2 emojis.`
+  
+    const messages: ChatMessage[] = [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Good ${timeOfDay}!` },
+    ]
+  
+    const result = await openRouterApi.chat(messages, DEFAULT_MODEL)
+  
+    if (result.kind === "ok") {
+      return { kind: "ok", message: result.response }
+    }
+  
+    return { kind: "error", message: result.message }
   }
-
-  return { kind: "error", message: result.message }
-}
