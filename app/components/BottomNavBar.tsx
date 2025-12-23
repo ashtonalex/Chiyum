@@ -235,7 +235,7 @@ const $icon: TextStyle = {
 }
 
 const $label: TextStyle = {
-  fontSize: fontSizes.pixel.sm,
+  fontSize: fontSizes.pixel.md,
   fontFamily: "pressStart2P",
   color: colors.text,
   textAlign: "center",

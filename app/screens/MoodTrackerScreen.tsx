@@ -92,14 +92,17 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     borderBottomWidth: pixelSpacing.borderWidth,
     borderBottomColor: colors.border,
     alignItems: "center",
+    width: "100%",
+    zIndex: 100,
   }
 
   const CONTENT_CONTAINER: ViewStyle = {
-    // flexGrow: 1, 
     alignItems: "center",
     justifyContent: "flex-end", // Align content to bottom if space permits
     paddingHorizontal: screenWidth * 0.05,
-    // paddingBottom handled by ScrollView
+    width: "100%",
+    maxWidth: 600, // Limit width on large screens
+    alignSelf: "center", // Center the container itself
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
@@ -109,16 +112,17 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-end",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md, // Increased margin
     zIndex: 10,
     overflow: "visible",
   }
 
   const INPUT_CONTAINER: ViewStyle = {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "center", // Changed from stretch to center
     width: "100%",
     marginTop: spacing.sm,
+    height: 50,
   }
 
   const MODAL_CONTENT: ViewStyle = {
@@ -142,23 +146,27 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     <Screen 
       preset="fixed" 
       safeAreaEdges={["top"]} 
-      style={{ backgroundColor: colors.background }}
-      contentContainerStyle={{ flex: 1 }}
+      style={{ backgroundColor: colors.background, width: "100%", height: "100%" }}
+      contentContainerStyle={{ flex: 1, width: "100%", height: "100%" }}
     >
       <ImageBackground 
         source={require("@assets/images/backgrounds/cozy_cottage.png")}
-        style={{ flex: 1, flexDirection: "column", overflow: "hidden" }}
-        imageStyle={{ resizeMode: "cover", top: 0, left: 0 }}
+        style={{ flex: 1, flexDirection: "column", overflow: "hidden", width: "100%", height: "100%" }}
+        imageStyle={{ resizeMode: "cover", top: 0, left: 0, width: "100%", height: "100%" }}
       >
       
       {/* Header - fixed at top */}
       <View style={HEADER_CONTAINER}>
-        <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: typography.pixel.normal, fontSize: 24, color: colors.text }} />
+        <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: typography.pixel.normal, fontSize: 20, color: colors.text }} />
       </View>
 
       <ScrollView 
-        style={{ flex: 1 }} 
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: navBarHeight + spacing.lg }}
+        style={{ flex: 1, width: "100%" }} 
+        contentContainerStyle={{ 
+          flexGrow: 1, 
+          paddingBottom: navBarHeight + spacing.lg,
+          alignItems: "center", // Enforce centering of children
+        }}
       >
       {/* Spacer to push content to bottom */}
       <View style={{ flex: 1 }} />
@@ -204,11 +212,11 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                 }}
                 contentStyle={{ 
                   paddingVertical: spacing.md,
-                  paddingHorizontal: spacing.lg,
+                  paddingHorizontal: spacing.md,
                 }}
                 labelStyle={{
                   fontFamily: typography.pixel.normal,
-                  fontSize: 12,
+                  fontSize: 10,
                   letterSpacing: 0,
                 }}
                 icon="emoticon-outline"
@@ -237,6 +245,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                       shadowOpacity: 1,
                       shadowRadius: 0,
                       elevation: 0,
+                      height: 50,
                     }}
                     outlineStyle={{
                       borderWidth: pixelSpacing.borderWidth,
@@ -261,15 +270,19 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                       shadowOpacity: 1,
                       shadowRadius: 0,
                       elevation: 0,
+                      height: 50,
+                      justifyContent: "center",
                     }}
                     contentStyle={{ 
-                      paddingVertical: spacing.xs,
-                      paddingHorizontal: spacing.md,
+                      height: "100%",
+                      paddingVertical: 0, // Remove vertical padding to let flex center it
+                      paddingHorizontal: spacing.md, 
                     }}
                     labelStyle={{
                       fontFamily: typography.pixel.normal,
                       fontSize: 12,
                       letterSpacing: 0,
+                      // textAlignVertical: "center" // Android only usually
                     }}
                     buttonColor={colors.palette.mintyTeal}
                     textColor={colors.text}
