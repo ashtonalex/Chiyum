@@ -1,5 +1,5 @@
-import React from "react"
-import { View, Pressable, ViewStyle, TextStyle, Platform } from "react-native"
+import React, { useState } from "react"
+import { View, Pressable, ViewStyle, TextStyle, Platform, Image, ImageStyle, ImageSourcePropType } from "react-native"
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -8,18 +8,16 @@ import Animated, {
 } from "react-native-reanimated"
 import * as Haptics from "expo-haptics"
 import { useNavigation } from "@react-navigation/native"
-import { Text } from "./Text"
 import { colors } from "../theme/colors"
 import { spacing, pixelSpacing } from "../theme/spacing"
-import { fontSizes } from "../theme/typography"
 
 export interface NavItem {
   /** Route name to navigate to */
   route: string
   /** Display label for the nav item */
   label: string
-  /** Icon character (emoji or unicode symbol) */
-  icon: string
+  /** Icon image source */
+  icon: ImageSourcePropType
   /** Optional custom color for this nav item */
   color?: string
 }
@@ -31,29 +29,35 @@ export interface BottomNavBarProps {
   activeRoute: string
 }
 
+// Fixed height for the open state of the navbar content
+const NAV_CONTENT_HEIGHT = 80
+const TOGGLE_HEIGHT = 20
+
 /**
  * Retro-Kawaii Bottom Navigation Bar
  * 
  * A pixel-art styled bottom navigation component with:
- * - Hard-blocked shadows (4px offset)
- * - 2px dark charcoal borders
- * - Pastel color accents
- * - Micro-animations on press
- * - Haptic feedback
- * 
- * @example
- * ```tsx
- * const navItems: NavItem[] = [
- *   { route: "Dashboard", label: "Home", icon: "🏠", color: colors.palette.mintyTeal },
- *   { route: "MoodTracker", label: "Mood", icon: "💭", color: colors.palette.mutedLavender },
- *   { route: "PhotoAlbum", label: "Photos", icon: "📷", color: colors.palette.sageGreen },
- * ]
- * 
- * <BottomNavBar items={navItems} activeRoute={currentRoute} />
- * ```
+ * - Collapsible design
+ * - Rounded edges
+ * - Custom pixel art icons
+ * - Hard-blocked shadows
  */
 export const BottomNavBar = ({ items, activeRoute }: BottomNavBarProps) => {
   const navigation = useNavigation()
+  const [isOpen, setIsOpen] = useState(true)
+  const openProgress = useSharedValue(1)
+
+  const toggleOpen = () => {
+    if (Platform.OS !== "web") {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    }
+    const newState = !isOpen
+    setIsOpen(newState)
+    openProgress.value = withSpring(newState ? 1 : 0, {
+      damping: 15,
+      stiffness: 100,
+    })
+  }
 
   const handlePress = (route: string) => {
     if (Platform.OS !== "web") {
@@ -62,23 +66,56 @@ export const BottomNavBar = ({ items, activeRoute }: BottomNavBarProps) => {
     navigation.navigate(route as never)
   }
 
+  const containerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateY: interpolate(openProgress.value, [0, 1], [NAV_CONTENT_HEIGHT, 0]),
+        },
+      ],
+    }
+  })
+
+  const chevronAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          rotate: `${interpolate(openProgress.value, [0, 1], [0, 180])}deg`,
+        },
+      ],
+    }
+  })
+
   return (
-    <View style={$container}>
-      <View style={$navBar}>
-        {items.map((item, index) => (
-          <NavButton
-            key={item.route}
-            item={item}
-            isActive={activeRoute === item.route}
-            onPress={() => handlePress(item.route)}
-            isFirst={index === 0}
-            isLast={index === items.length - 1}
+    <View style={$containerOuter}>
+      <Animated.View style={[$animatedContainer, containerAnimatedStyle]}>
+        <Pressable onPress={toggleOpen} style={$toggleButton}>
+          <Animated.Image
+            source={require("../../assets/icons/nav_chevron.png")}
+            style={[$chevronIcon, chevronAnimatedStyle]}
+            resizeMode="contain"
           />
-        ))}
-      </View>
+        </Pressable>
+        
+        <View style={$navBarContent}>
+          <View style={$navItemsContainer}>
+            {items.map((item, index) => (
+              <NavButton
+                key={item.route}
+                item={item}
+                isActive={activeRoute === item.route}
+                onPress={() => handlePress(item.route)}
+                isFirst={index === 0}
+                isLast={index === items.length - 1}
+              />
+            ))}
+          </View>
+        </View>
+      </Animated.View>
     </View>
   )
 }
+
 
 interface NavButtonProps {
   item: NavItem
@@ -115,11 +152,6 @@ const NavButton = ({ item, isActive, onPress, isFirst, isLast }: NavButtonProps)
     return {
       transform: [{ scale: scale.value }],
       backgroundColor,
-      // Animate shadow offset for "pressed" effect
-      shadowOffset: {
-        width: interpolate(scale.value, [0.9, 1], [2, pixelSpacing.shadowOffset]),
-        height: interpolate(scale.value, [0.9, 1], [2, pixelSpacing.shadowOffset]),
-      },
     }
   })
 
@@ -133,36 +165,25 @@ const NavButton = ({ item, isActive, onPress, isFirst, isLast }: NavButtonProps)
     }
   })
 
-  const animatedLabelStyle = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(activeProgress.value, [0, 1], [0.6, 1]),
-    }
-  })
-
-  const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      style={[
-        $navButton,
-        isFirst && $navButtonFirst,
-        isLast && $navButtonLast,
-        animatedButtonStyle,
-      ]}
-    >
-      <Animated.View style={animatedIconStyle}>
-        <Text style={$icon} text={item.icon} />
-      </Animated.View>
-      <Animated.View style={animatedLabelStyle}>
-        <Text
-          style={[$label, isActive && $labelActive]}
-          text={item.label}
-        />
-      </Animated.View>
-    </AnimatedPressable>
+    <Animated.View style={[$navButtonWrapper]}>
+      <Pressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+      >
+        <Animated.View style={[$navButtonInner, animatedButtonStyle]}>
+          <Animated.Image 
+            source={item.icon} 
+            style={[$navIcon, animatedIconStyle]} 
+            resizeMode="contain" 
+          />
+        </Animated.View>
+        {isActive && (
+           <View style={$activeIndicator} />
+        )}
+      </Pressable>
+    </Animated.View>
   )
 }
 
@@ -170,24 +191,58 @@ const NavButton = ({ item, isActive, onPress, isFirst, isLast }: NavButtonProps)
 // STYLES
 // ═══════════════════════════════════════════════════════════════════════════
 
-const $container: ViewStyle = {
+const $containerOuter: ViewStyle = {
   position: "absolute",
   bottom: 0,
   left: 0,
   right: 0,
+  alignItems: 'center',
   paddingBottom: Platform.OS === "ios" ? spacing.lg : spacing.md,
-  paddingHorizontal: spacing.md,
-  backgroundColor: colors.transparent,
-  // Add extra padding for safe area on iOS
-  paddingTop: spacing.sm,
+  zIndex: 100,
+  width: "100%",
 }
 
-const $navBar: ViewStyle = {
-  flexDirection: "row",
+const $animatedContainer: ViewStyle = {
+  width: "100%",
+  alignItems: "center",
+}
+
+const $toggleButton: ViewStyle = {
+  width: 40,
+  height: TOGGLE_HEIGHT,
+  backgroundColor: colors.surface,
+  borderTopLeftRadius: 10,
+  borderTopRightRadius: 10,
+  borderWidth: pixelSpacing.borderWidth,
+  borderBottomWidth: 0,
+  borderColor: colors.border,
+  alignItems: "center",
+  justifyContent: "center",
+  zIndex: 10,
+  marginBottom: -2, // Overlap slightly to hide border seam
+  shadowColor: colors.shadow.default,
+  shadowOffset: {
+    width: 2,
+    height: -2,
+  },
+  shadowOpacity: 0.2,
+  shadowRadius: 0,
+}
+
+const $chevronIcon: ImageStyle = {
+  width: 12,
+  height: 12,
+  tintColor: colors.text,
+}
+
+const $navBarContent: ViewStyle = {
   backgroundColor: colors.surface,
   borderWidth: pixelSpacing.borderWidth,
   borderColor: colors.border,
-  borderRadius: 16,
+  borderRadius: 24, // Rounded edges
+  width: "90%", // Span most of the width but not full
+  height: NAV_CONTENT_HEIGHT,
+  overflow: "hidden",
   // Hard pixel shadow
   shadowColor: colors.shadow.default,
   shadowOffset: {
@@ -197,51 +252,42 @@ const $navBar: ViewStyle = {
   shadowOpacity: 1,
   shadowRadius: 0,
   elevation: 8,
-  overflow: "hidden",
 }
 
-const $navButton: ViewStyle = {
-  flex: 1,
+const $navItemsContainer: ViewStyle = {
+  flexDirection: "row",
+  height: "100%",
+  alignItems: 'center',
+  justifyContent: 'space-around',
+  paddingHorizontal: spacing.sm,
+}
+
+const $navButtonWrapper: ViewStyle = {
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
+const $navButtonInner: ViewStyle = {
+  width: 56,
+  height: 56,
+  borderRadius: 16,
   alignItems: "center",
   justifyContent: "center",
-  paddingVertical: spacing.sm,
-  paddingHorizontal: spacing.xs,
-  borderRightWidth: pixelSpacing.borderWidth,
-  borderRightColor: colors.border,
-  // Individual button shadow for pressed effect
-  shadowColor: colors.shadow.default,
-  shadowOffset: {
-    width: pixelSpacing.shadowOffset,
-    height: pixelSpacing.shadowOffset,
-  },
-  shadowOpacity: 0.3,
-  shadowRadius: 0,
+  borderWidth: 2,
+  borderColor: colors.border,
 }
 
-const $navButtonFirst: ViewStyle = {
-  borderTopLeftRadius: 14,
-  borderBottomLeftRadius: 14,
+const $navIcon: ImageStyle = {
+  width: 32,
+  height: 32,
 }
 
-const $navButtonLast: ViewStyle = {
-  borderRightWidth: 0,
-  borderTopRightRadius: 14,
-  borderBottomRightRadius: 14,
-}
-
-const $icon: TextStyle = {
-  fontSize: 24,
-  marginBottom: spacing.xxxs,
-}
-
-const $label: TextStyle = {
-  fontSize: fontSizes.pixel.md,
-  fontFamily: "pressStart2P",
-  color: colors.text,
-  textAlign: "center",
-}
-
-const $labelActive: TextStyle = {
-  color: colors.text,
-  fontWeight: "bold",
+const $activeIndicator: ViewStyle = {
+  position: 'absolute',
+  bottom: -4,
+  alignSelf: 'center',
+  width: 8,
+  height: 8,
+  borderRadius: 4,
+  backgroundColor: colors.text,
 }

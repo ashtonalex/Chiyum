@@ -30,9 +30,9 @@ const MOODS = [
 ]
 
 const NAV_ITEMS: NavItem[] = [
-  { route: "Dashboard", label: "Home", icon: "🏠", color: colors.palette.mintyTeal },
-  { route: "MoodTracker", label: "Mood", icon: "💭", color: colors.palette.mutedLavender },
-  { route: "PhotoAlbum", label: "Photos", icon: "📷", color: colors.palette.sageGreen },
+  { route: "Dashboard", label: "Home", icon: require("../../assets/icons/nav_home.png"), color: colors.palette.mintyTeal },
+  { route: "MoodTracker", label: "Mood", icon: require("../../assets/icons/nav_mood.png"), color: colors.palette.mutedLavender },
+  { route: "PhotoAlbum", label: "Photos", icon: require("../../assets/icons/nav_photos.png"), color: colors.palette.sageGreen },
 ]
 
 export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function MoodTrackerScreen({
