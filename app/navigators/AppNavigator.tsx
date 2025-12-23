@@ -14,6 +14,7 @@ import { LoginScreen } from "@/screens/LoginScreen"
 import { DashboardScreen } from "@/screens/DashboardScreen"
 import { MoodTrackerScreen } from "@/screens/MoodTrackerScreen"
 import { PhotoAlbumScreen } from "@/screens/PhotoAlbumScreen"
+import { AlbumDetailScreen } from "@/screens/AlbumDetailScreen"
 import { useAppTheme } from "@/theme/context"
 
 import type { AppStackParamList, NavigationProps } from "./navigationTypes"
@@ -59,6 +60,7 @@ const AppStack = () => {
       {/** 🔥 Your screens go here */}
       <Stack.Screen name="MoodTracker" component={MoodTrackerScreen} />
       <Stack.Screen name="PhotoAlbum" component={PhotoAlbumScreen} />
+      <Stack.Screen name="AlbumDetail" component={AlbumDetailScreen} />
       {/* IGNITE_GENERATOR_ANCHOR_APP_STACK_SCREENS */}
     </Stack.Navigator>
   )

@@ -15,6 +15,7 @@ import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators/navigationTypes"
 import { colors } from "../theme/colors"
 import { spacing, pixelSpacing } from "../theme/spacing"
+import { typography } from "../theme/typography"
 
 interface MoodTrackerScreenProps extends AppStackScreenProps<"MoodTracker"> {}
 
@@ -105,9 +106,10 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     width: "100%",
     minHeight: 200, // Ensure minimum height for companion area
     aspectRatio: 1, // Maintain aspect ratio for scaling
+    flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.lg,
+    justifyContent: "flex-end",
+    marginBottom: spacing.sm,
     zIndex: 10,
     overflow: "visible",
   }
@@ -144,14 +146,14 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
       contentContainerStyle={{ flex: 1 }}
     >
       <ImageBackground 
-        source={require("@assets/images/backgrounds/retro_kawaii_bg.png")}
-        style={{ flex: 1, flexDirection: "column" }}
-        resizeMode="cover"
+        source={require("@assets/images/backgrounds/cozy_cottage.png")}
+        style={{ flex: 1, flexDirection: "column", overflow: "hidden" }}
+        imageStyle={{ resizeMode: "cover", top: 0, left: 0 }}
       >
       
       {/* Header - fixed at top */}
       <View style={HEADER_CONTAINER}>
-        <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: "pressStart2P", fontSize: 24, color: colors.text }} />
+        <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: typography.pixel.normal, fontSize: 24, color: colors.text }} />
       </View>
 
       <ScrollView 
@@ -205,7 +207,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                   paddingHorizontal: spacing.lg,
                 }}
                 labelStyle={{
-                  fontFamily: "pressStart2P",
+                  fontFamily: typography.pixel.normal,
                   fontSize: 12,
                   letterSpacing: 0,
                 }}
@@ -228,7 +230,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                       flex: 1, 
                       backgroundColor: colors.surface,
                       fontSize: 16,
-                      fontFamily: "pressStart2P",
+                      fontFamily: typography.pixel.normal,
                       // Hard pixel shadow
                       shadowColor: colors.shadow.default,
                       shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
@@ -265,7 +267,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                       paddingHorizontal: spacing.md,
                     }}
                     labelStyle={{
-                      fontFamily: "pressStart2P",
+                      fontFamily: typography.pixel.normal,
                       fontSize: 12,
                       letterSpacing: 0,
                     }}

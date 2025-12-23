@@ -14,6 +14,7 @@ export type AppStackParamList = {
   Dashboard: undefined
   MoodTracker: undefined
   PhotoAlbum: undefined
+  AlbumDetail: { albumId: string }
   // IGNITE_GENERATOR_ANCHOR_APP_STACK_PARAM_LIST
 }
 
