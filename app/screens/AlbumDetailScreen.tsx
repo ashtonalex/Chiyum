@@ -10,7 +10,7 @@ import { Screen } from "@/components/Screen"
 import { Text } from "@/components/Text"
 import { Card } from "@/components/Card"
 import { useStores } from "@/models"
-import { colors, spacing } from "@/theme"
+import { colors, spacing, typography } from "@/theme"
 import { Button } from "@/components/Button"
 
 interface AlbumDetailScreenProps extends AppStackScreenProps<"AlbumDetail"> {}
@@ -194,7 +194,7 @@ export const AlbumDetailScreen: FC<AlbumDetailScreenProps> = observer(function A
                                             onChangeText={setEditedNote}
                                             placeholder="Write a note..."
                                             style={$noteInput}
-                                            activeOutlineColor={colors.palette.primeBlue}
+                                            activeOutlineColor={colors.palette.primary500}
                                         />
                                         <View style={$editButtons}>
                                             <Button 
@@ -202,12 +202,14 @@ export const AlbumDetailScreen: FC<AlbumDetailScreenProps> = observer(function A
                                                 preset="default" 
                                                 onPress={() => setIsEditing(false)} 
                                                 style={{ flex: 1, marginRight: spacing.xs }}
+                                                textStyle={{ fontFamily: typography.pixel.normal, fontSize: 10 }}
                                             />
                                             <Button 
                                                 text="Save" 
                                                 preset="filled" 
                                                 onPress={handleSaveNote} 
                                                 style={{ flex: 1, marginLeft: spacing.xs }}
+                                                textStyle={{ fontFamily: typography.pixel.normal, fontSize: 10 }}
                                             />
                                         </View>
                                     </View>
@@ -222,7 +224,7 @@ export const AlbumDetailScreen: FC<AlbumDetailScreenProps> = observer(function A
                                             preset="filled" 
                                             onPress={() => setIsEditing(true)}
                                             style={$editButton}
-                                            textStyle={{ color: colors.text }}
+                                            textStyle={{ color: colors.text, fontFamily: typography.pixel.normal, fontSize: 12 }}
                                         />
                                     </>
                                 )}
@@ -289,9 +291,9 @@ const $backButtonStyle: ViewStyle = {
 }
 
 const $backButtonText: TextStyle = {
-    fontFamily: "Lexend-Bold",
+    fontFamily: typography.pixel.normal,
     color: colors.text,
-    fontSize: 14,
+    fontSize: 10,
 }
 
 const $headerContainer: ViewStyle = {
@@ -313,8 +315,8 @@ const $headerCard: ViewStyle = {
 }
 
 const $titleText: TextStyle = {
-    fontSize: 24,
-    fontFamily: "Lexend-Bold",
+    fontSize: 20,
+    fontFamily: typography.pixel.normal,
     color: colors.text,
     marginBottom: spacing.xs,
     textAlign: "center",
@@ -328,10 +330,10 @@ const $divider: ViewStyle = {
 }
 
 const $storyText: TextStyle = {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.textDim,
-    fontFamily: "Lexend-Regular",
-    lineHeight: 20,
+    fontFamily: typography.pixel.normal,
+    lineHeight: 18,
     textAlign: "center",
 }
 
@@ -344,8 +346,8 @@ const $addPhotoButton: ViewStyle = {
 }
 
 const $addPhotoButtonText: TextStyle = {
-    fontFamily: "PressStart2P-Regular",
-    fontSize: 12, 
+    fontFamily: typography.pixel.normal,
+    fontSize: 10, 
     color: colors.text
 }
 
@@ -393,8 +395,8 @@ const $photoFooter: ViewStyle = {
 }
 
 const $noteText: TextStyle = {
-    fontFamily: "PressStart2P-Regular",
-    fontSize: 10,
+    fontFamily: typography.pixel.normal,
+    fontSize: 8,
     color: colors.text,
     textAlign: "center",
 }
@@ -406,8 +408,8 @@ const $emptyState: ViewStyle = {
 }
 
 const $emptyText: TextStyle = {
-    fontFamily: "Lexend-Bold",
-    fontSize: 18,
+    fontFamily: typography.pixel.normal,
+    fontSize: 14,
     color: colors.text,
 }
 
@@ -428,7 +430,8 @@ const $emptyPhotos: ViewStyle = {
 
 const $emptyPhotoText: TextStyle = {
     color: colors.textDim,
-    fontFamily: "Lexend-Regular",
+    fontFamily: typography.pixel.normal,
+    fontSize: 10,
 }
 
 /* Modal Styling */
@@ -461,12 +464,12 @@ const $modalFooter: ViewStyle = {
 }
 
 const $modalNoteText: TextStyle = {
-    fontFamily: "Lexend-Medium",
-    fontSize: 16,
+    fontFamily: typography.pixel.normal,
+    fontSize: 12,
     color: colors.text,
     textAlign: "center",
     marginBottom: spacing.lg,
-    lineHeight: 24,
+    lineHeight: 18,
 }
 
 const $editButton: ViewStyle = {
@@ -485,8 +488,8 @@ const $editContainer: ViewStyle = {
 
 const $noteInput: TextStyle = {
     backgroundColor: colors.palette.white,
-    fontSize: 14,
-    fontFamily: "Lexend-Regular",
+    fontSize: 12,
+    fontFamily: typography.pixel.normal,
 }
 
 const $editButtons: ViewStyle = {
@@ -501,7 +504,7 @@ const $closeButton: ViewStyle = {
 
 const $closeButtonText: TextStyle = {
     color: colors.text,
-    fontFamily: "Lexend-Bold",
+    fontFamily: typography.pixel.normal,
     textDecorationLine: "none",
-    fontSize: 14,
+    fontSize: 10,
 }
