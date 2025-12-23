@@ -73,7 +73,9 @@ bin/Exponent.app
 /ios
 expo-env.d.ts
 
+
 ## Secrets
+.env
 npm-debug.*
 *.jks
 *.p8

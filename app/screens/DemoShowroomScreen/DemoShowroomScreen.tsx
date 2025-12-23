@@ -26,6 +26,7 @@ import { useSafeAreaInsetsStyle } from "@/utils/useSafeAreaInsetsStyle"
 import * as Demos from "./demos"
 import { DrawerIconButton } from "./DrawerIconButton"
 import SectionListWithKeyboardAwareScrollView from "./SectionListWithKeyboardAwareScrollView"
+import { PixelCompanion, MoodTracker } from "@/components/companion"
 
 const logo = require("@assets/images/logo.png")
 
@@ -260,6 +261,7 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<"DemoShowroom">> =
             ListHeaderComponent={
               <View style={themed($heading)}>
                 <Text preset="heading" tx="demoShowroomScreen:jumpStart" />
+                <MoodTracker />
               </View>
             }
             onScrollToIndexFailed={scrollToIndexFailed}
@@ -274,6 +276,9 @@ export const DemoShowroomScreen: FC<DemoTabScreenProps<"DemoShowroom">> =
               )
             }}
           />
+          <View style={[themed($companionContainer), { pointerEvents: "box-none" }]}>
+             <PixelCompanion />
+          </View>
         </Screen>
       </Drawer>
     )
@@ -324,4 +329,11 @@ const $demoItemDescription: ThemedStyle<TextStyle> = ({ spacing }) => ({
 
 const $demoUseCasesSpacer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   paddingBottom: spacing.xxl,
+})
+
+const $companionContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  position: "absolute",
+  bottom: spacing.lg,
+  right: spacing.lg,
+  zIndex: 100,
 })

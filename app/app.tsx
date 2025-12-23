@@ -23,6 +23,8 @@ import { useFonts } from "expo-font"
 import * as Linking from "expo-linking"
 import { KeyboardProvider } from "react-native-keyboard-controller"
 import { initialWindowMetrics, SafeAreaProvider } from "react-native-safe-area-context"
+import { StatusBar } from "react-native"
+import { PaperProvider } from "react-native-paper"
 
 import { AuthProvider } from "./context/AuthContext"
 import { initI18n } from "./i18n"
@@ -32,6 +34,9 @@ import { ThemeProvider } from "./theme/context"
 import { customFontsToLoad } from "./theme/typography"
 import { loadDateFnsLocale } from "./utils/formatDate"
 import * as storage from "./utils/storage"
+import { setupRootStore } from "./models/helpers/setupRootStore"
+import { RootStoreProvider } from "./models/RootStoreContext"
+import { RootStoreType } from "./models"
 
 export const NAVIGATION_PERSISTENCE_KEY = "NAVIGATION_STATE"
 
@@ -42,17 +47,9 @@ const config = {
     Login: {
       path: "",
     },
-    Welcome: "welcome",
-    Demo: {
-      screens: {
-        DemoShowroom: {
-          path: "showroom/:queryIndex?/:itemIndex?",
-        },
-        DemoDebug: "debug",
-        DemoPodcastList: "podcast",
-        DemoCommunity: "community",
-      },
-    },
+    Dashboard: "dashboard",
+    MoodTracker: "mood",
+    PhotoAlbum: "photos",
   },
 }
 
@@ -70,11 +67,16 @@ export function App() {
 
   const [areFontsLoaded, fontLoadError] = useFonts(customFontsToLoad)
   const [isI18nInitialized, setIsI18nInitialized] = useState(false)
+  const [rootStore, setRootStore] = useState<RootStoreType | undefined>(undefined)
 
   useEffect(() => {
-    initI18n()
-      .then(() => setIsI18nInitialized(true))
-      .then(() => loadDateFnsLocale())
+    ;(async () => {
+      await initI18n()
+      setIsI18nInitialized(true)
+      await loadDateFnsLocale()
+      const store = await setupRootStore()
+      setRootStore(store)
+    })()
   }, [])
 
   // Before we show the app, we have to wait for our state to be ready.
@@ -83,7 +85,12 @@ export function App() {
   // In iOS: application:didFinishLaunchingWithOptions:
   // In Android: https://stackoverflow.com/a/45838109/204044
   // You can replace with your own loading component if you wish.
-  if (!isNavigationStateRestored || !isI18nInitialized || (!areFontsLoaded && !fontLoadError)) {
+  if (
+    !isNavigationStateRestored ||
+    !isI18nInitialized ||
+    !rootStore ||
+    (!areFontsLoaded && !fontLoadError)
+  ) {
     return null
   }
 
@@ -95,17 +102,22 @@ export function App() {
   // otherwise, we're ready to render the app
   return (
     <SafeAreaProvider initialMetrics={initialWindowMetrics}>
-      <KeyboardProvider>
-        <AuthProvider>
-          <ThemeProvider>
-            <AppNavigator
-              linking={linking}
-              initialState={initialNavigationState}
-              onStateChange={onNavigationStateChange}
-            />
-          </ThemeProvider>
-        </AuthProvider>
-      </KeyboardProvider>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      <RootStoreProvider value={rootStore}>
+        <KeyboardProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              <PaperProvider>
+                <AppNavigator
+                  linking={linking}
+                  initialState={initialNavigationState}
+                  onStateChange={onNavigationStateChange}
+                />
+              </PaperProvider>
+            </ThemeProvider>
+          </AuthProvider>
+        </KeyboardProvider>
+      </RootStoreProvider>
     </SafeAreaProvider>
   )
 }

@@ -62,6 +62,10 @@
   "extra": {
     "ignite": {
       "version": "11.3.2"
+    },
+    "eas": {
+      "projectId": "8ed1f3a7-2831-4f3f-a932-c013b73f9c21"
     }
-  }
+  },
+  "owner": "ashtonalex"
 }
