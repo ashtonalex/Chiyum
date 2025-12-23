@@ -77,17 +77,17 @@ const $moodButton: ViewStyle = {
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: "white",
-  borderRadius: 12,
+  borderRadius: 0, // strict pixel
   padding: 12,
   marginHorizontal: 8,
   minWidth: 70,
   shadowColor: "#000",
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.05,
-  shadowRadius: 4,
-  elevation: 2,
-  borderWidth: 1,
-  borderColor: "transparent",
+  shadowOffset: { width: 4, height: 4 }, // hard offset
+  shadowOpacity: 1, // solid
+  shadowRadius: 0, // no blur
+  elevation: 0,
+  borderWidth: 2,
+  borderColor: "transparent", // Will be overridden or needs to be set to a color for visibility if not active
 }
 
 const $activeMood: ViewStyle = {

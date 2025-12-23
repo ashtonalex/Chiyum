@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
-import { View, ViewStyle, ImageBackground, TouchableOpacity, Dimensions } from "react-native"
+import { View, ViewStyle, ImageBackground, TouchableOpacity, Dimensions, ScrollView } from "react-native"
 import { useRoute } from "@react-navigation/native"
 import * as Haptics from "expo-haptics"
 
@@ -51,11 +51,11 @@ export const DashboardScreen: FC<DashboardScreenProps> = observer(function Dashb
   }
 
   const CONTENT_CONTAINER: ViewStyle = {
-    // flex: 1, // Removed to allow scrolling with preset="auto"
+    // flex: 1, // Removed to allow scrolling
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: screenWidth * 0.05, // 5% horizontal padding
-    paddingBottom: navBarHeight + spacing.md, // Space for absolutely positioned nav bar
+    // paddingBottom handled by ScrollView contentContainerStyle
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
@@ -69,10 +69,10 @@ export const DashboardScreen: FC<DashboardScreenProps> = observer(function Dashb
 
   return (
     <Screen 
-      preset="auto" // Changed from "fixed" to "auto" for responsiveness
-      safeAreaEdges={["top"]} // Removed "bottom" to avoid double padding
+      preset="fixed" 
+      safeAreaEdges={["top"]} 
       style={{ backgroundColor: colors.background }}
-      contentContainerStyle={{ flexGrow: 1 }}
+      contentContainerStyle={{ flex: 1 }}
     >
       <ImageBackground 
         source={require("@assets/images/backgrounds/dashboard_bedroom_bg.png")}
@@ -80,11 +80,15 @@ export const DashboardScreen: FC<DashboardScreenProps> = observer(function Dashb
         resizeMode="cover"
       >
       
-      {/* Header - fixed at top */}
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: navBarHeight + spacing.lg }} // Ensure scrolling and padding
+      >
+      {/* Header - fixed at top (now scrolls with content) */}
       <View style={HEADER_CONTAINER}>
         <Text preset="heading" text="Partner Name" style={{ fontFamily: "pressStart2P", fontSize: 24, color: colors.text }} />
       </View>
-
+ 
       {/* Main content area - fills remaining space */}
       <View style={CONTENT_CONTAINER}>
           
@@ -98,9 +102,10 @@ export const DashboardScreen: FC<DashboardScreenProps> = observer(function Dashb
              {/* Sparkle Effect Overlay - triggers on companion click */}
              <SparkleEffect trigger={sparkleTrigger} />
           </View>
-
+ 
       </View>
-
+      </ScrollView>
+ 
       {/* Bottom Navigation */}
       <BottomNavBar items={NAV_ITEMS} activeRoute={route.name} />
 

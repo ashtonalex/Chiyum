@@ -46,7 +46,7 @@ export const MoodCard = ({ mood, emoji, selected, onPress, color }: MoodCardProp
     alignItems: "center",
     backgroundColor: colors.surface,
     borderWidth: pixelSpacing.borderWidth,
-    borderRadius: 8, // Slightly rounded for "smooth-pixel" or 0 for strict
+    borderRadius: 0, // strict pixel look
     marginHorizontal: spacing.sm,
     // Hard Pixel Shadow
     shadowColor: colors.shadow.default,

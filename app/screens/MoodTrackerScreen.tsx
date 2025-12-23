@@ -94,20 +94,22 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   }
 
   const CONTENT_CONTAINER: ViewStyle = {
-    flex: 1,
+    // flexGrow: 1, 
     alignItems: "center",
-    justifyContent: "flex-end", // Align all content to the bottom
-    paddingHorizontal: screenWidth * 0.05, // 5% horizontal padding
-    paddingBottom: navBarHeight + spacing.md, // Space for absolutely positioned nav bar
+    justifyContent: "flex-end", // Align content to bottom if space permits
+    paddingHorizontal: screenWidth * 0.05,
+    // paddingBottom handled by ScrollView
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
-    width: "100%", // Take full width to center content
+    width: "100%",
+    minHeight: 200, // Ensure minimum height for companion area
+    aspectRatio: 1, // Maintain aspect ratio for scaling
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.lg, // Space between companion and controls
+    marginBottom: spacing.lg,
     zIndex: 10,
-    overflow: "visible", // Allow speech bubble to overflow this container
+    overflow: "visible",
   }
 
   const INPUT_CONTAINER: ViewStyle = {
@@ -137,14 +139,14 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   return (
     <Screen 
       preset="fixed" 
-      safeAreaEdges={["top", "bottom"]} 
+      safeAreaEdges={["top"]} 
       style={{ backgroundColor: colors.background }}
       contentContainerStyle={{ flex: 1 }}
     >
       <ImageBackground 
         source={require("@assets/images/backgrounds/retro_kawaii_bg.png")}
         style={{ flex: 1, flexDirection: "column" }}
-        resizeMode="repeat"
+        resizeMode="cover"
       >
       
       {/* Header - fixed at top */}
@@ -152,6 +154,13 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
         <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: "pressStart2P", fontSize: 24, color: colors.text }} />
       </View>
 
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: navBarHeight + spacing.lg }}
+      >
+      {/* Spacer to push content to bottom */}
+      <View style={{ flex: 1 }} />
+ 
       {/* Main content area - fills remaining space */}
       <View style={CONTENT_CONTAINER}>
           
@@ -171,7 +180,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
              {/* Sparkle Effect Overlay - triggers on companion click */}
              <SparkleEffect trigger={sparkleTrigger} />
           </View>
-
+ 
           {/* Controls - pinned to bottom of content area */}
           <View style={{ width: "100%", flexShrink: 0 }}>
             
@@ -206,7 +215,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
             >
                 How do you feel?
             </PaperButton>
-
+ 
             {/* Chat Input */}
             <View style={INPUT_CONTAINER}>
                 <TextInput
@@ -267,10 +276,11 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                     Send
                 </PaperButton>
             </View>
-
+ 
           </View>
-
+ 
       </View>
+      </ScrollView>
 
       {/* Mood Selector Modal */}
       <Portal>
