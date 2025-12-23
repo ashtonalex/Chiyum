@@ -12,7 +12,7 @@ import { Card } from "@/components/Card"
 import { Button } from "@/components/Button"
 import { BottomNavBar, NavItem } from "@/components/BottomNavBar"
 import { useStores } from "@/models"
-import { colors, spacing, pixelSpacing } from "@/theme" 
+import { colors, spacing, pixelSpacing, typography } from "@/theme" 
 
 interface PhotoAlbumScreenProps extends AppStackScreenProps<"PhotoAlbum"> {}
 
@@ -115,7 +115,7 @@ export const PhotoAlbumScreen: FC<PhotoAlbumScreenProps> = observer(function Pho
                           />
                       ) : (
                           <View style={$emptyCover}>
-                            <Text text="No Photos" size="xxs" />
+                            <Text text="No Photos" size="xxs" style={{ fontFamily: typography.pixel.normal }} />
                           </View>
                       )}
                     </View>
@@ -193,12 +193,14 @@ export const PhotoAlbumScreen: FC<PhotoAlbumScreenProps> = observer(function Pho
                   preset="default"
                   onPress={() => setCreateModalVisible(false)}
                   style={$cancelButton}
+                  textStyle={{ fontFamily: typography.pixel.normal, fontSize: 10 }}
                 />
                  <Button
                   text="Create"
                   preset="filled"
                   onPress={handleCreateAlbum}
                   style={$confirmButton}
+                  textStyle={{ fontFamily: typography.pixel.normal, fontSize: 10 }}
                 />
               </View>
             </Modal>
@@ -246,12 +248,15 @@ const $headerBanner: ViewStyle = {
 }
 
 const $headerTitle: TextStyle = {
-  fontFamily: "Lexend-Bold",
+  fontFamily: typography.pixel.normal,
+  fontSize: 20,
   color: colors.text,
   textAlign: "center",
 }
 
 const $headerSubtitle: TextStyle = {
+  fontFamily: typography.pixel.normal,
+  fontSize: 10,
   color: colors.textDim,
   marginTop: spacing.xxs,
   textAlign: "center",
@@ -302,14 +307,16 @@ const $emptyCover: ViewStyle = {
 }
 
 const $albumTitle: TextStyle = {
-  fontSize: 18,
+  fontSize: 14,
   color: colors.text,
-  fontFamily: "Lexend-Bold",
+  fontFamily: typography.pixel.normal,
 }
 
 const $albumSnippet: TextStyle = {
   marginBottom: spacing.xxs,
   color: colors.textDim,
+  fontFamily: typography.pixel.normal,
+  fontSize: 10,
 }
 
 const $metadataRow: ViewStyle = {
@@ -319,8 +326,8 @@ const $metadataRow: ViewStyle = {
 
 const $metaText: TextStyle = {
   color: colors.palette.primary600,
-  fontSize: 12,
-  fontFamily: "PressStart2P-Regular",
+  fontSize: 10,
+  fontFamily: typography.pixel.normal,
 }
 
 const $emptyStateContainer: ViewStyle = {
@@ -344,15 +351,17 @@ const $emptyStateCard: ViewStyle = {
 }
 
 const $emptyText: TextStyle = {
-  fontFamily: "Lexend-Bold",
+  fontFamily: typography.pixel.normal,
   marginBottom: spacing.xs,
   color: colors.text,
-  fontSize: 16,
+  fontSize: 14,
 }
 
 const $emptySubtext: TextStyle = {
   color: colors.textDim,
   textAlign: "center",
+  fontFamily: typography.pixel.normal,
+  fontSize: 10,
 }
 
 const $createButton: ViewStyle = {
@@ -370,7 +379,7 @@ const $createButton: ViewStyle = {
 }
 
 const $createButtonText: TextStyle = {
-  fontFamily: "PressStart2P-Regular",
+  fontFamily: typography.pixel.normal,
   fontSize: 12,
   color: colors.text,
 }
@@ -392,7 +401,8 @@ const $modalTitle: TextStyle = {
   textAlign: "center",
   marginBottom: spacing.md,
   color: colors.text,
-  fontFamily: "Lexend-Bold",
+  fontFamily: typography.pixel.normal,
+  fontSize: 16,
 }
 
 const $inputContainer: ViewStyle = {
@@ -402,12 +412,14 @@ const $inputContainer: ViewStyle = {
 const $label: TextStyle = {
   marginBottom: spacing.xxs,
   color: colors.text,
-  fontFamily: "Lexend-SemiBold",
+  fontFamily: typography.pixel.normal,
+  fontSize: 12,
 }
 
 const $input: TextStyle = {
   backgroundColor: colors.palette.white,
-  fontSize: 14,
+  fontSize: 12,
+  fontFamily: typography.pixel.normal,
 }
 
 const $modalButtons: ViewStyle = {
