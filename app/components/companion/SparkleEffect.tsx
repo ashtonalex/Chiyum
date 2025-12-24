@@ -42,8 +42,12 @@ const Sparkle = ({ delay, x, y, size = 10 }: { delay: number, x: number, y: numb
 
 const NUM_SPARKLES = 6
 
-export const SparkleEffect = () => {
-    // Generate random sparkles
+interface SparkleEffectProps {
+    trigger?: number // Increment this to trigger animation
+}
+
+export const SparkleEffect = ({ trigger = 0 }: SparkleEffectProps) => {
+    // Generate random sparkles - regenerate on each trigger
     const sparkles = Array.from({ length: NUM_SPARKLES }).map((_, i) => ({
         id: i,
         x: (Math.random() - 0.5) * 60, // Relative to center
@@ -52,8 +56,11 @@ export const SparkleEffect = () => {
         size: 15 + Math.random() * 10
     }))
 
+    // Only render sparkles when trigger > 0
+    if (trigger === 0) return null
+
     return (
-        <View style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]}>
+        <View key={trigger} style={[StyleSheet.absoluteFill, { pointerEvents: "none" }]}>
             {sparkles.map(s => (
                 <Sparkle key={s.id} {...s} />
             ))}

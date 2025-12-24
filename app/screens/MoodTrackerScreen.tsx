@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite"
 import React, { FC, useEffect, useState } from "react"
-import { View, ViewStyle, ScrollView, Image, TouchableOpacity, Dimensions } from "react-native"
+import { View, ViewStyle, ScrollView, Image, ImageBackground, TouchableOpacity, Dimensions } from "react-native"
 import { Modal, Portal, Button as PaperButton, TextInput, Text as PaperText } from "react-native-paper"
 import { useRoute } from "@react-navigation/native"
 import * as Haptics from "expo-haptics"
@@ -15,6 +15,7 @@ import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators/navigationTypes"
 import { colors } from "../theme/colors"
 import { spacing, pixelSpacing } from "../theme/spacing"
+import { typography } from "../theme/typography"
 
 interface MoodTrackerScreenProps extends AppStackScreenProps<"MoodTracker"> {}
 
@@ -29,9 +30,9 @@ const MOODS = [
 ]
 
 const NAV_ITEMS: NavItem[] = [
-  { route: "Dashboard", label: "Home", icon: "🏠", color: colors.palette.mintyTeal },
-  { route: "MoodTracker", label: "Mood", icon: "💭", color: colors.palette.mutedLavender },
-  { route: "PhotoAlbum", label: "Photos", icon: "📷", color: colors.palette.sageGreen },
+  { route: "Dashboard", label: "Home", icon: require("../../assets/icons/nav_home.png"), color: colors.palette.mintyTeal },
+  { route: "MoodTracker", label: "Mood", icon: require("../../assets/icons/nav_mood.png"), color: colors.palette.mutedLavender },
+  { route: "PhotoAlbum", label: "Photos", icon: require("../../assets/icons/nav_photos.png"), color: colors.palette.sageGreen },
 ]
 
 export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function MoodTrackerScreen({
@@ -41,12 +42,19 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   const route = useRoute()
   const [chatMessage, setChatMessage] = useState("")
   const [isMoodModalVisible, setMoodModalVisible] = useState(false)
+  const [sparkleTrigger, setSparkleTrigger] = useState(0)
   
-  // Dimensions for responsive sprite sizing
+  // Dimensions for responsive layout
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window")
-  // 30% of screen height/width roughly, keeping aspect ratio? 
-  // Let's target 30% of screen height for the companion area
-  const spriteSize = screenHeight * 0.3
+  
+  // Responsive scale for companion - larger on bigger screens, clamped to reasonable range
+  const companionScale = Math.max(1.5, Math.min(3, Math.min(screenWidth, screenHeight) / 300))
+  
+  // Responsive spacing calculations
+  const navBarHeight = screenHeight * 0.1 // Approximate nav bar height (~10%)
+  const modalMaxHeight = screenHeight * 0.4 // 40% of screen for modal content
+  const modalPadding = Math.max(16, screenWidth * 0.05) // 5% of screen width, min 16
+  const modalMargin = Math.max(16, screenWidth * 0.05) // 5% of screen width, min 16
 
   useEffect(() => {
     companionStore.hideBubble()
@@ -64,6 +72,11 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     companionStore.fetchAIResponse(moodId)
   }
 
+  const handleCompanionPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    setSparkleTrigger(prev => prev + 1) // Increment to trigger sparkle animation
+  }
+
   const handleSendMessage = () => {
     if (!chatMessage.trim()) return
 
@@ -79,38 +92,43 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
     borderBottomWidth: pixelSpacing.borderWidth,
     borderBottomColor: colors.border,
     alignItems: "center",
+    width: "100%",
+    zIndex: 100,
   }
 
   const CONTENT_CONTAINER: ViewStyle = {
-    flex: 1,
     alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: spacing.lg,
-    marginTop: 240, 
-    paddingBottom: 90, // Space for bottom navigation bar
+    justifyContent: "flex-end", // Align content to bottom if space permits
+    paddingHorizontal: screenWidth * 0.05,
+    width: "100%",
+    maxWidth: 600, // Limit width on large screens
+    alignSelf: "center", // Center the container itself
   }
 
   const COMPANION_CONTAINER: ViewStyle = {
-    height: spriteSize,
-    width: "100%", // Take full width to center allow helper views
+    width: "100%",
+    minHeight: 200, // Ensure minimum height for companion area
+    aspectRatio: 1, // Maintain aspect ratio for scaling
+    flexDirection: "column",
     alignItems: "center",
-    justifyContent: "center",
-    marginVertical: spacing.xl,
+    justifyContent: "flex-end",
+    marginBottom: spacing.md, // Increased margin
     zIndex: 10,
-    overflow: "visible", // Allow speech bubble to overflow this container
+    overflow: "visible",
   }
 
   const INPUT_CONTAINER: ViewStyle = {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "center", // Changed from stretch to center
     width: "100%",
     marginTop: spacing.sm,
+    height: 50,
   }
 
   const MODAL_CONTENT: ViewStyle = {
     backgroundColor: "white",
-    padding: 20,
-    margin: 20,
+    padding: modalPadding,
+    margin: modalMargin,
     borderRadius: 8,
     alignItems: "center",
   }
@@ -125,13 +143,35 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
   }
 
   return (
-    <Screen preset="fixed" safeAreaEdges={["top", "bottom"]} style={{ backgroundColor: colors.background }}>
+    <Screen 
+      preset="fixed" 
+      safeAreaEdges={["top"]} 
+      style={{ backgroundColor: colors.background, width: "100%", height: "100%" }}
+      contentContainerStyle={{ flex: 1, width: "100%", height: "100%" }}
+    >
+      <ImageBackground 
+        source={require("@assets/images/backgrounds/cozy_cottage.png")}
+        style={{ flex: 1, flexDirection: "column", overflow: "hidden", width: "100%", height: "100%" }}
+        imageStyle={{ resizeMode: "cover", top: 0, left: 0, width: "100%", height: "100%" }}
+      >
       
-      {/* Header */}
+      {/* Header - fixed at top */}
       <View style={HEADER_CONTAINER}>
-        <Text preset="heading" text="Chubb's Corner" style={{ color: colors.palette.primary500 }} />
+        <Text preset="heading" text="Chubb's Corner" style={{ fontFamily: typography.pixel.normal, fontSize: 20, color: colors.text }} />
       </View>
 
+      <ScrollView 
+        style={{ flex: 1, width: "100%" }} 
+        contentContainerStyle={{ 
+          flexGrow: 1, 
+          paddingBottom: navBarHeight + spacing.lg,
+          alignItems: "center", // Enforce centering of children
+        }}
+      >
+      {/* Spacer to push content to bottom */}
+      <View style={{ flex: 1 }} />
+ 
+      {/* Main content area - fills remaining space */}
       <View style={CONTENT_CONTAINER}>
           
           {/* Companion Area */}
@@ -142,27 +182,50 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                  Let's check PixelCompanion again. It uses fixed sizes. 
                  Since we can't easily pass props without editing it, let's scale the view.
              */}
-             <View style={{ transform: [{ scale: 2.5 }] }}> 
-                <PixelCompanion />
-             </View>
+             <TouchableOpacity onPress={handleCompanionPress} activeOpacity={0.8}>
+               <View style={{ transform: [{ scale: companionScale }] }}>
+                  <PixelCompanion />
+               </View>
+             </TouchableOpacity>
+             {/* Sparkle Effect Overlay - triggers on companion click */}
+             <SparkleEffect trigger={sparkleTrigger} />
           </View>
-
-          {/* Controls */}
-          <View style={{ width: "100%", paddingBottom: spacing.xxl }}>
+ 
+          {/* Controls - pinned to bottom of content area */}
+          <View style={{ width: "100%", flexShrink: 0 }}>
             
             {/* Mood Button */}
             <PaperButton 
-                mode="elevated" 
+                mode="contained" 
                 onPress={() => setMoodModalVisible(true)}
-                style={{ marginBottom: spacing.lg, borderColor: colors.border }}
-                contentStyle={{ paddingVertical: spacing.xs }}
+                style={{ 
+                  marginBottom: spacing.lg, 
+                  borderRadius: 0,
+                  borderWidth: pixelSpacing.borderWidth,
+                  borderColor: colors.border,
+                  // Hard pixel shadow
+                  shadowColor: colors.shadow.lavender,
+                  shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
+                  shadowOpacity: 1,
+                  shadowRadius: 0,
+                  elevation: 0,
+                }}
+                contentStyle={{ 
+                  paddingVertical: spacing.md,
+                  paddingHorizontal: spacing.md,
+                }}
+                labelStyle={{
+                  fontFamily: typography.pixel.normal,
+                  fontSize: 10,
+                  letterSpacing: 0,
+                }}
                 icon="emoticon-outline"
-                textColor={colors.palette.primary500}
-                buttonColor={colors.palette.neutral100}
+                textColor={colors.text}
+                buttonColor={colors.palette.mutedLavender}
             >
                 How do you feel?
             </PaperButton>
-
+ 
             {/* Chat Input */}
             <View style={INPUT_CONTAINER}>
                 <TextInput
@@ -175,13 +238,14 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                       flex: 1, 
                       backgroundColor: colors.surface,
                       fontSize: 16,
-                      fontFamily: "pressStart2P",
+                      fontFamily: typography.pixel.normal,
                       // Hard pixel shadow
                       shadowColor: colors.shadow.default,
                       shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
                       shadowOpacity: 1,
                       shadowRadius: 0,
                       elevation: 0,
+                      height: 50,
                     }}
                     outlineStyle={{
                       borderWidth: pixelSpacing.borderWidth,
@@ -206,15 +270,19 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                       shadowOpacity: 1,
                       shadowRadius: 0,
                       elevation: 0,
+                      height: 50,
+                      justifyContent: "center",
                     }}
                     contentStyle={{ 
-                      paddingVertical: spacing.xs,
-                      paddingHorizontal: spacing.md,
+                      height: "100%",
+                      paddingVertical: 0, // Remove vertical padding to let flex center it
+                      paddingHorizontal: spacing.md, 
                     }}
                     labelStyle={{
-                      fontFamily: "pressStart2P",
+                      fontFamily: typography.pixel.normal,
                       fontSize: 12,
                       letterSpacing: 0,
+                      // textAlignVertical: "center" // Android only usually
                     }}
                     buttonColor={colors.palette.mintyTeal}
                     textColor={colors.text}
@@ -223,16 +291,17 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
                     Send
                 </PaperButton>
             </View>
-
+ 
           </View>
-
+ 
       </View>
+      </ScrollView>
 
       {/* Mood Selector Modal */}
       <Portal>
         <Modal visible={isMoodModalVisible} onDismiss={() => setMoodModalVisible(false)} contentContainerStyle={MODAL_CONTENT}>
           <Text preset="subheading" text="How are you feeling?" style={{ marginBottom: spacing.md, color: colors.text }} />
-          <ScrollView style={{ width: "100%", maxHeight: 300 }}>
+          <ScrollView style={{ width: "100%", maxHeight: modalMaxHeight }}>
              {MOODS.map(mood => (
                  <TouchableOpacity key={mood.id} onPress={() => handleMoodSelect(mood.id)} style={MOOD_ITEM}>
                      <Text text={mood.emoji} size="xl" style={{ marginRight: spacing.md }} />
@@ -255,6 +324,7 @@ export const MoodTrackerScreen: FC<MoodTrackerScreenProps> = observer(function M
       {/* Bottom Navigation */}
       <BottomNavBar items={NAV_ITEMS} activeRoute={route.name} />
 
+      </ImageBackground>
     </Screen>
   )
 })

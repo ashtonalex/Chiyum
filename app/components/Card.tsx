@@ -256,14 +256,15 @@ export function Card(props: CardProps) {
 }
 
 const $containerBase: ThemedStyle<ViewStyle> = (theme) => ({
-  borderRadius: theme.spacing.md,
+  borderRadius: 0, // Strict pixel look
   padding: theme.spacing.xs,
-  borderWidth: 1,
+  borderWidth: 2, // 2px fixed border
+  borderColor: theme.colors.palette.neutral800, // Explicit border color if needed default
   shadowColor: theme.colors.palette.neutral800,
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.08,
-  shadowRadius: 12.81,
-  elevation: 16,
+  shadowOffset: { width: 4, height: 4 }, // Hard pixel offset
+  shadowOpacity: 1, // Solid shadow
+  shadowRadius: 0, // No blur
+  elevation: 0, // No native android shadow blur
   minHeight: 96,
 })
 

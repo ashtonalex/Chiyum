@@ -1,110 +1,115 @@
 import { observer } from "mobx-react-lite"
 import React, { FC } from "react"
-import { View, ViewStyle, TextStyle } from "react-native"
-import { Button } from "@/components/Button"
-import { Screen } from "@/components/Screen"
-import { Text } from "@/components/Text"
-import { colors } from "@/theme/colors"
-import { spacing, pixelSpacing } from "@/theme/spacing"
-import { AppStackScreenProps } from "@/navigators/navigationTypes"
+import { View, ViewStyle, ImageBackground, TouchableOpacity, Dimensions, ScrollView } from "react-native"
+import { useRoute } from "@react-navigation/native"
+import * as Haptics from "expo-haptics"
+
+import { Screen } from "../components/Screen"
+import { Text } from "../components/Text"
+import { BottomNavBar, NavItem } from "../components/BottomNavBar"
+import { PixelCompanion } from "../components/companion/PixelCompanion"
+import { SparkleEffect } from "../components/companion/SparkleEffect"
+import { colors } from "../theme/colors"
+import { spacing, pixelSpacing } from "../theme/spacing"
+import { AppStackScreenProps } from "../navigators/navigationTypes"
 
 interface DashboardScreenProps extends AppStackScreenProps<"Dashboard"> {}
+
+const NAV_ITEMS: NavItem[] = [
+  { route: "Dashboard", label: "Home", icon: require("../../assets/icons/nav_home.png"), color: colors.palette.mintyTeal },
+  { route: "MoodTracker", label: "Mood", icon: require("../../assets/icons/nav_mood.png"), color: colors.palette.mutedLavender },
+  { route: "PhotoAlbum", label: "Photos", icon: require("../../assets/icons/nav_photos.png"), color: colors.palette.sageGreen },
+]
 
 export const DashboardScreen: FC<DashboardScreenProps> = observer(function DashboardScreen({
   navigation,
 }) {
-  const HEADER_STYLE: ViewStyle = {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: spacing.lg,
+  const route = useRoute()
+  const [sparkleTrigger, setSparkleTrigger] = React.useState(0)
+
+  // Dimensions for responsive layout
+  const { width: screenWidth, height: screenHeight } = Dimensions.get("window")
+  
+  // Responsive scale for companion - larger on bigger screens, clamped to reasonable range
+  const companionScale = Math.max(1.5, Math.min(3, Math.min(screenWidth, screenHeight) / 300))
+  
+  // Responsive spacing calculations
+  const navBarHeight = screenHeight * 0.1 // Approximate nav bar height (~10%)
+
+  const handleCompanionPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    setSparkleTrigger(prev => prev + 1) // Increment to trigger sparkle animation
+  }
+
+  const HEADER_CONTAINER: ViewStyle = {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     backgroundColor: colors.surface,
     borderBottomWidth: pixelSpacing.borderWidth,
     borderBottomColor: colors.border,
-    marginBottom: spacing.lg,
-  }
-
-  const CONTENT_CONTAINER_STYLE: ViewStyle = {
-    flex: 1,
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xl,
-  }
-
-  const SPRITE_SECTION_STYLE: ViewStyle = {
-    flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: colors.backgroundSecondary,
-    borderWidth: pixelSpacing.borderWidth,
-    borderColor: colors.border,
-    marginBottom: spacing.lg,
-    // Pixel Shadow
-    shadowColor: colors.shadow.default,
-    shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0, 
   }
 
-  const ACTIONS_ROW_STYLE: ViewStyle = {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: spacing.sm,
+  const CONTENT_CONTAINER: ViewStyle = {
+    // flex: 1, // Removed to allow scrolling
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: screenWidth * 0.05, // 5% horizontal padding
+    // paddingBottom handled by ScrollView contentContainerStyle
   }
 
-  const BUTTON_STYLE: ViewStyle = {
-    flex: 1,
-    backgroundColor: colors.surface,
-    borderWidth: pixelSpacing.borderWidth,
-    borderColor: colors.border,
-    borderRadius: 0, // Hard edges
-    // Retro shadow for buttons
-    shadowColor: colors.shadow.teal,
-    shadowOffset: { width: pixelSpacing.shadowOffset, height: pixelSpacing.shadowOffset },
-    shadowOpacity: 1,
-    shadowRadius: 0,
-    elevation: 0,
+  const COMPANION_CONTAINER: ViewStyle = {
+    width: "100%",
+    aspectRatio: 1, // Ensure proportional scaling
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+    overflow: "visible",
   }
 
   return (
-    <Screen preset="fixed" safeAreaEdges={["top", "bottom"]} contentContainerStyle={{ flex: 1 }}>
-      {/* Header */}
-      <View style={HEADER_STYLE}>
-        <Text preset="heading" text="Partner Name" style={{ color: colors.text }} />
+    <Screen 
+      preset="fixed" 
+      safeAreaEdges={["top"]} 
+      style={{ backgroundColor: colors.background }}
+      contentContainerStyle={{ flex: 1 }}
+    >
+      <ImageBackground 
+        source={require("@assets/images/backgrounds/dashboard_bedroom_bg.png")}
+        style={{ flex: 1, flexDirection: "column" }}
+        resizeMode="cover"
+      >
+      
+      <ScrollView 
+        style={{ flex: 1 }} 
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: navBarHeight + spacing.lg }} // Ensure scrolling and padding
+      >
+      {/* Header - fixed at top (now scrolls with content) */}
+      <View style={HEADER_CONTAINER}>
+        <Text preset="heading" text="Partner Name" style={{ fontFamily: "pressStart2P", fontSize: 24, color: colors.text }} />
       </View>
-
-      <View style={CONTENT_CONTAINER_STYLE}>
-        {/* Pixel Sprite Placeholder */}
-        <View style={SPRITE_SECTION_STYLE}>
-          <Text text="[Pixel Sprite Placeholder]" preset="bold" />
-        </View>
-
-        {/* Quick Actions */}
-        <View style={ACTIONS_ROW_STYLE}>
-          <Button
-            text="Nudge"
-            style={BUTTON_STYLE}
-            textStyle={{ color: colors.text, fontFamily: "PressStart2P-Regular", fontSize: 12 }}
-            pressedStyle={{ transform: [{ translateY: 2 }, { translateX: 2 }] }}
-            onPress={() => console.log("Nudge pressed")}
-          />
-          <Button
-            text="Doodle"
-            style={BUTTON_STYLE}
-            textStyle={{ color: colors.text, fontFamily: "PressStart2P-Regular", fontSize: 12 }}
-            pressedStyle={{ transform: [{ translateY: 2 }, { translateX: 2 }] }}
-            onPress={() => navigation.navigate("PhotoAlbum")}
-          />
-          <Button
-            text="Mood"
-            style={BUTTON_STYLE}
-            textStyle={{ color: colors.text, fontFamily: "PressStart2P-Regular", fontSize: 12 }}
-            pressedStyle={{ transform: [{ translateY: 2 }, { translateX: 2 }] }}
-            onPress={() => navigation.navigate("MoodTracker")}
-          />
-        </View>
+ 
+      {/* Main content area - fills remaining space */}
+      <View style={CONTENT_CONTAINER}>
+          
+          {/* Companion Area */}
+          <View style={COMPANION_CONTAINER}>
+             <TouchableOpacity onPress={handleCompanionPress} activeOpacity={0.8}>
+               <View style={{ transform: [{ scale: companionScale }] }}>
+                  <PixelCompanion />
+               </View>
+             </TouchableOpacity>
+             {/* Sparkle Effect Overlay - triggers on companion click */}
+             <SparkleEffect trigger={sparkleTrigger} />
+          </View>
+ 
       </View>
+      </ScrollView>
+ 
+      {/* Bottom Navigation */}
+      <BottomNavBar items={NAV_ITEMS} activeRoute={route.name} />
+
+      </ImageBackground>
     </Screen>
   )
 })
